@@ -1,0 +1,242 @@
+/* 전체 페이지 스타일 */
+.carlist-container {
+    background-color: #F3F4F6;
+    min-height: 100vh;
+    padding: 3rem;
+    text-align: center;
+    color: #F8F9FA;
+    font-family: "Inter", sans-serif;
+}
+
+/* 필터 컨테이너 */
+.filters-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+/* 필터 입력칸 */
+.filter-input {
+    border: 1px solid #D1D1D1;
+    background-color: white;
+    color: #495057;
+    padding: 12px;
+    border-radius: 6px;
+    width: 160px;
+    font-size: 1rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.filter-input:focus {
+    border-color: #495057;
+    outline: none;
+    box-shadow: 0 0 6px rgba(33, 37, 41, 0.2);
+}
+
+/* 검색 버튼 */
+.search-btn {
+    background-color: #212529;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    border: none;
+}
+
+.search-btn:hover {
+    background-color: #343A40;
+    transform: scale(1.03);
+}
+
+/* 차량 리스트 (그리드) */
+.car-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-auto-rows: 1fr; /* 카드 크기 자동 조정 */
+    gap: 10px 0.1px; /* 첫 번째 값(세로), 두 번째 값(가로) */
+    justify-content: center;
+    align-items: stretch; /* 카드 높이 균일하게 */
+}
+
+/* 차량 카드 */
+.car-card {
+    background-color: white;
+    padding: 1.2rem;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    min-height: 450px;
+    max-width: 320px;
+    width: 100%;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.car-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 차량 이미지 */
+.car-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+/* 기본 이미지 (이미지 없을 경우) */
+.no-image {
+    background: #E9ECEF;
+    color: #868E96;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* 차량 정보 컨테이너 */
+.car-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* 차량명 높이 고정 (2줄 기준) + 중앙 정렬 */
+.car-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #212529;
+    height: 70px; /* 2줄 높이 고정 */
+    text-align: center;
+    word-break: break-word;
+    min-height: 50px;
+
+    display: flex; /* Flexbox 사용 */
+    align-items: center; /* Y축(수직) 중앙 정렬 */
+    justify-content: center; /* X축(가로) 중앙 정렬 */
+}
+
+/* 차량 세부 정보 정렬 */
+.car-details {
+    font-size: 0.9rem;
+    color: #6C757D;
+    height: 45px; /* 높이 고정으로 정렬 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.4;
+    margin-top: 8px;
+}
+
+/* 가격 위치 고정 */
+.car-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #212529;
+    margin: 12px 0 4px;
+}
+
+/* 지역 위치 고정 */
+.car-location {
+    font-size: 0.9rem;
+    color: #868E96;
+}
+
+/* 상세보기 버튼을 항상 하단에 배치 */
+.details-btn {
+    background-color: #212529;
+    display: block;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+    color: white;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    font-size: 0.95rem;
+    border: none;
+    margin-top: auto;
+}
+
+.details-btn:hover {
+    background-color: #343A40;
+    transform: scale(1.03);
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 8px; /* 버튼 간격 조절 */
+}
+
+.pagination button {
+    background: none;
+    color: #333;
+    border: 2px solid #888; /* 연한 회색 테두리 */
+    padding: 8px 16px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease-in-out;
+}
+
+.pagination button:hover {
+    background: rgba(0, 0, 0, 0.1); /* 투명한 블랙 느낌 */
+    border-color: #555;
+    color: #222;
+}
+
+.pagination button:disabled {
+    border-color: #ccc;
+    color: #bbb;
+    cursor: not-allowed;
+    background: none;
+}
+
+.pagination span {
+    font-size: 16px;
+    font-weight: 600;
+    color: #555;
+    padding: 0 5px;
+}
+
+.favorite-btn {
+    background-color: white;
+    border: 2px solid #ff4d4d;
+    color: #ff4d4d;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.favorite-btn.favorited {
+    background-color: #ff4d4d;
+    color: white;
+}
