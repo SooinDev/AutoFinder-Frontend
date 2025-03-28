@@ -4,6 +4,7 @@ import axios from 'axios';
 import CarInfo from '../components/CarInfo'; // 차량 정보 UI 컴포넌트
 import '../styles/CarDetail.css'; // 스타일 파일
 
+// CarDetail
 const CarDetail = () => {
     const { id } = useParams();
     const [car, setCar] = useState(null);
