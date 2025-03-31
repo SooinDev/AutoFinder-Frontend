@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/CarDetail.css"; // 스타일 적용
+import "../styles/CarDetail.css";
 
 const CarInfo = ({ car }) => {
     return (
