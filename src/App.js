@@ -1,17 +1,19 @@
+import React, { useState, useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-import { useState, useEffect } from "react";
-import CarList from "./pages/CarList";
-import CarDetail from "./pages/CarDetail";
-import Navbar from "./components/Navbar";
-import Register from "./pages/Register";
-import Login from "./pages/Login";
+import Header from "./components/Header";
+import CarListPage from "./pages/CarListPage";
+import CarDetailPage from "./pages/CarDetailPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import "./styles/global.css";
 
 function App() {
     const [userId, setUserId] = useState(null);
-    const [favorites, setFavorites] = useState(new Set());  // 추가됨
+    const [favorites, setFavorites] = useState(new Set());
 
     useEffect(() => {
-        const storedUserId = localStorage.getItem("userId");
+        const storedUserId = localStorage.getItem("userId") || sessionStorage.getItem("userId");
         if (storedUserId && storedUserId !== "null" && storedUserId !== "undefined") {
             setUserId(storedUserId);
         } else {
@@ -20,16 +22,15 @@ function App() {
     }, []);
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100">
-            {/* setFavorites를 props로 Navbar에 전달 */}
-            <Navbar userId={userId} setUserId={setUserId} setFavorites={setFavorites} />
-            <main className="flex-grow container mx-auto p-6">
-                {/* setFavorites를 CarList에도 전달 */}
+        <div className="app">
+            <Header userId={userId} setUserId={setUserId} setFavorites={setFavorites} />
+            <main className="main-content">
                 <Routes>
-                    <Route path="/" element={<CarList userId={userId} setFavorites={setFavorites} />} />
-                    <Route path="/cars/:id" element={<CarDetail />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/login" element={<Login setUserId={setUserId} />} />
+                    <Route path="/" element={<CarListPage userId={userId} favorites={favorites} setFavorites={setFavorites} />} />
+                    <Route path="/cars/:id" element={<CarDetailPage />} />
+                    <Route path="/login" element={<LoginPage setUserId={setUserId} />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="*" element={<NotFoundPage />} />
                 </Routes>
             </main>
         </div>
