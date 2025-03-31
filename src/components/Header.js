@@ -1,8 +1,8 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 
 const Header = ({ userId, setUserId, setFavorites }) => {
-    const navigate = useNavigate();
+    const history = useHistory();
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
     const handleLogout = () => {
@@ -16,23 +16,31 @@ const Header = ({ userId, setUserId, setFavorites }) => {
         }
 
         setUserId(null);
-        navigate("/login");
+        history.push("/login");
     };
 
     return (
         <header className="bg-header">
             <div className="header-container">
-                <Link to="/" className="header-logo">AutoFinder</Link>
+                <Link to="/" className="header-logo">
+                    AutoFinder
+                </Link>
                 <nav className="header-nav">
                     {token ? (
                         <div className="header-user">
-                            <span className="header-user-id">ID: {userId || "알 수 없음"}</span>
-                            <button onClick={handleLogout} className="header-button">로그아웃</button>
+                            <span className="header-user-id">
+                                <span className="mr-1">안녕하세요,</span>
+                                <strong>{userId || "사용자"}</strong>
+                                <span>님</span>
+                            </span>
+                            <button onClick={handleLogout} className="header-button">
+                                로그아웃
+                            </button>
                         </div>
                     ) : (
                         <div className="header-auth">
                             <Link to="/login" className="header-link">로그인</Link>
-                            <Link to="/register" className="header-link">회원가입</Link>
+                            <Link to="/register" className="header-register-link">회원가입</Link>
                         </div>
                     )}
                 </nav>

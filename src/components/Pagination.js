@@ -1,6 +1,4 @@
 import React from 'react';
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
-import '../styles/CarList.css';
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     if (totalPages <= 1) return null;
@@ -32,7 +30,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
                 disabled={currentPage === 0}
                 className={currentPage === 0 ? "disabled" : ""}
             >
-                <FaArrowLeft />
+                이전
             </button>
 
             {getPageNumbers().map(pageNumber => (
@@ -50,7 +48,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
                 disabled={currentPage >= totalPages - 1}
                 className={currentPage >= totalPages - 1 ? "disabled" : ""}
             >
-                <FaArrowRight />
+                다음
             </button>
         </div>
     );
