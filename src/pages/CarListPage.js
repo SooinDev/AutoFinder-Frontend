@@ -3,7 +3,6 @@ import { fetchCars, fetchFavorites, toggleFavorite } from '../api/services';
 import CarFilters from '../components/CarFilters';
 import CarCard from '../components/CarCard';
 import Pagination from '../components/Pagination';
-import '../styles/CarList.css';
 
 const CarListPage = ({ userId }) => {
     const [cars, setCars] = useState([]);
@@ -103,10 +102,10 @@ const CarListPage = ({ userId }) => {
     }, [userId]);
 
     return (
-        <div className="carlist-container">
-            <div className="carlist-header">
-                <h1>자동차 목록</h1>
-                <p>다양한 차량을 검색하고 비교해보세요.</p>
+        <div className="car-container">
+            <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold mb-2">자동차 목록</h1>
+                <p className="text-gray-600">다양한 차량을 검색하고 비교해보세요.</p>
             </div>
 
             <CarFilters
@@ -117,14 +116,18 @@ const CarListPage = ({ userId }) => {
             />
 
             {error && (
-                <div className="error-message">
-                    {error}
+                <div className="error-container">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="error-icon h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    <p className="error-message">{error}</p>
                 </div>
             )}
 
             {isLoading ? (
-                <div className="loading-spinner">
-                    <p>차량 정보를 불러오는 중...</p>
+                <div className="loading-container">
+                    <div className="spinner"></div>
+                    <p className="loading-text">차량 정보를 불러오는 중...</p>
                 </div>
             ) : (
                 <>
@@ -140,8 +143,11 @@ const CarListPage = ({ userId }) => {
                             ))}
                         </div>
                     ) : (
-                        <div className="no-cars">
-                            <p>검색 조건에 맞는 차량이 없습니다.</p>
+                        <div className="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="empty-icon h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p className="text-lg font-medium mt-2">검색 조건에 맞는 차량이 없습니다.</p>
                         </div>
                     )}
 

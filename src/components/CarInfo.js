@@ -1,22 +1,52 @@
 import React from "react";
-import "../styles/CarDetail.css";
 
 const CarInfo = ({ car }) => {
     return (
-        <div className="car-info-card">
+        <div className="car-detail-card">
             {car.imageUrl ? (
-                <img src={car.imageUrl} alt={car.model} className="car-info-image" />
+                <img
+                    src={car.imageUrl}
+                    alt={car.model}
+                    className="car-detail-image"
+                />
             ) : (
-                <div className="no-image">이미지 없음</div>
+                <div className="no-image car-detail-image">
+                    이미지 없음
+                </div>
             )}
-            <h1 className="car-title">{car.model}</h1>
-            <p className="car-details">연식: {car.year} | 주행거리: {car.mileage?.toLocaleString() ?? "정보 없음"} km</p>
-            <p className="car-details">연료 타입: {car.fuel}</p>
-            <p className="car-details">지역: {car.region}</p>
-            <p className="car-price">{car.price?.toLocaleString() ?? "정보 없음"} 만원</p>
-            <a href={car.url} target="_blank" rel="noopener noreferrer" className="details-btn">
-                상세 정보 보기
-            </a>
+
+            <div className="car-detail-info">
+                <h1 className="car-detail-title">{car.model}</h1>
+
+                <div className="car-detail-tags">
+                    <span className="car-detail-tag">{car.year}년식</span>
+                    <span className="car-detail-tag">{car.fuel}</span>
+                </div>
+
+                <div className="car-detail-info-list">
+                    <div className="car-detail-info-item">
+                        <span className="car-detail-info-label">주행거리:</span>
+                        <span>{car.mileage?.toLocaleString() ?? "정보 없음"} km</span>
+                    </div>
+                    <div className="car-detail-info-item">
+                        <span className="car-detail-info-label">지역:</span>
+                        <span>{car.region}</span>
+                    </div>
+                </div>
+
+                <div className="car-detail-price">
+                    {car.price?.toLocaleString() ?? "정보 없음"} 만원
+                </div>
+
+                <a
+                    href={car.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="car-detail-link"
+                >
+                    상세 정보 보기
+                </a>
+            </div>
         </div>
     );
 };
