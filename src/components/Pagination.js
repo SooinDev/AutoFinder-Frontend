@@ -23,6 +23,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         return pageNumbers;
     };
 
+
     const pageNumbers = getPageNumbers();
     const hasPrevious = currentPage > 0;
     const hasNext = currentPage < totalPages - 1;
@@ -46,9 +47,9 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
                 {pageNumbers.map(pageNumber => (
                     <button
                         key={pageNumber}
-                        onClick={() => onPageChange(pageNumber - 1)}
+                        onClick={() => onPageChange(pageNumber - 1)} // 내부적으로는 0부터 시작하는 인덱스 사용
                         className={`${
-                            pageNumber === currentPage + 1
+                            pageNumber === currentPage + 1 // 표시되는 번호와 실제 페이지 인덱스 매핑
                                 ? 'bg-teal-50 border-teal-500 text-teal-600 z-10'
                                 : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                         } relative inline-flex items-center px-4 py-2 border text-sm font-medium`}
