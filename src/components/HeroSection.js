@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const HeroSection = () => {
+const HeroSection = ({ userId }) => {
+    const isLoggedIn = !!userId;
+
     return (
         <div className="relative bg-gradient-to-br from-teal-500 to-teal-700 overflow-hidden">
             {/* 배경 패턴 */}
@@ -20,23 +22,50 @@ const HeroSection = () => {
                     <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
                         <h1>
                             <span className="block text-sm font-semibold uppercase tracking-wide text-white">AutoFinder</span>
-                            <span className="mt-1 block text-4xl tracking-tight font-extrabold sm:text-5xl xl:text-6xl">
-                <span className="block text-white">당신에게 맞는</span>
-                <span className="block text-teal-200">완벽한 중고차</span>
-              </span>
+                            {isLoggedIn ? (
+                                <span className="mt-1 block text-4xl tracking-tight font-extrabold sm:text-5xl xl:text-6xl">
+                  <span className="block text-white">{userId && typeof userId === 'string' ? userId : '사용자'}님,</span>
+                  <span className="block text-teal-200">환영합니다!</span>
+                </span>
+                            ) : (
+                                <span className="mt-1 block text-4xl tracking-tight font-extrabold sm:text-5xl xl:text-6xl">
+                  <span className="block text-white">당신에게 맞는</span>
+                  <span className="block text-teal-200">완벽한 중고차</span>
+                </span>
+                            )}
                         </h1>
-                        <p className="mt-3 text-base text-teal-50 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                            복잡한 중고차 시장에서 최적의 선택을 도와드립니다. 다양한 조건과 상세한 정보로
-                            중고차 구매의 불안함을 줄이고, 만족스러운 선택을 할 수 있도록 안내합니다.
-                        </p>
+                        {isLoggedIn ? (
+                            <p className="mt-3 text-base text-teal-50 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
+                                나만을 위한 맞춤형 추천과 서비스를 경험해보세요. 원하는 조건에 맞는
+                                차량을 빠르게 찾아드립니다. 즐겨찾기와 알림 기능을 활용해보세요.
+                            </p>
+                        ) : (
+                            <p className="mt-3 text-base text-teal-50 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
+                                복잡한 중고차 시장에서 최적의 선택을 도와드립니다. 다양한 조건과 상세한 정보로
+                                중고차 구매의 불안함을 줄이고, 만족스러운 선택을 할 수 있도록 안내합니다.
+                            </p>
+                        )}
                         <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <Link to="/register" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-teal-800 bg-white hover:bg-teal-50 md:py-4 md:text-lg">
-                                    시작하기
-                                </Link>
-                                <Link to="/" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-teal-600 bg-opacity-60 hover:bg-opacity-70 md:py-4 md:text-lg">
-                                    차량 둘러보기
-                                </Link>
+                                {isLoggedIn ? (
+                                    <>
+                                        <Link to="/cars" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-teal-800 bg-white hover:bg-teal-50 md:py-4 md:text-lg">
+                                            차량 검색하기
+                                        </Link>
+                                        <Link to="/favorites" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-teal-600 bg-opacity-60 hover:bg-opacity-70 md:py-4 md:text-lg">
+                                            즐겨찾기 보기
+                                        </Link>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Link to="/register" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-teal-800 bg-white hover:bg-teal-50 md:py-4 md:text-lg">
+                                            시작하기
+                                        </Link>
+                                        <Link to="/cars" className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-teal-600 bg-opacity-60 hover:bg-opacity-70 md:py-4 md:text-lg">
+                                            차량 둘러보기
+                                        </Link>
+                                    </>
+                                )}
                             </div>
                         </div>
                     </div>

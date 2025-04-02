@@ -25,30 +25,30 @@ function App() {
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-50">
-            <Header userId={userId} setUserId={setUserId} setFavorites={setFavorites} />
+            <Header userId={userId} setUserId={setUserId} setFavorites={setFavorites}/>
             <main className="flex-grow">
                 <Switch>
                     <Route exact path="/">
-                        <HomePage userId={userId} favorites={favorites} setFavorites={setFavorites} />
+                        <HomePage userId={userId} favorites={favorites} setFavorites={setFavorites}/>
                     </Route>
                     <Route exact path="/cars">
-                        <CarListPage userId={userId} favorites={favorites} setFavorites={setFavorites} />
+                        <CarListPage userId={userId} favorites={favorites} setFavorites={setFavorites}/>
                     </Route>
                     <Route path="/cars/:id">
-                        <CarDetailPage />
+                        <CarDetailPage userId={userId} favorites={favorites} setFavorites={setFavorites}/>
                     </Route>
                     <Route path="/login">
-                        <LoginPage setUserId={setUserId} />
+                        <LoginPage setUserId={setUserId}/>
                     </Route>
                     <Route path="/register">
-                        <RegisterPage />
+                        <RegisterPage/>
                     </Route>
                     <Route path="*">
-                        <NotFoundPage />
+                        <NotFoundPage/>
                     </Route>
                 </Switch>
             </main>
-            <Footer />
+            <Footer/>
         </div>
     );
 }
