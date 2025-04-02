@@ -15,7 +15,7 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
         model: "", minPrice: "", maxPrice: "", minMileage: "", maxMileage: "", fuel: "", region: "", year: ""
     });
 
-    // 차량 목록 불러오기
+    // 차량 목록 불러오기 - 함수 수정
     const loadCars = async () => {
         setIsLoading(true);
         setError(null);
@@ -24,8 +24,17 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
             // 홈페이지에서는 최대 6개만 표시, 일반 페이지에서는 기본 설정 사용
             const pageSize = isHomePage ? 6 : 21;
             const data = await fetchCars(filters, currentPage, pageSize);
-            setCars(data.content || []);
-            setTotalPages(data.totalPages || 1);
+
+            // 즐겨찾기 탭일 경우 즐겨찾기한 차량만 필터링
+            if (activeTab === 'favorite' && !isHomePage) {
+                const filteredCars = data.content.filter(car => favorites.has(car.id));
+                setCars(filteredCars || []);
+                // 페이지 계산 로직 추가 (필요 시)
+                setTotalPages(Math.ceil(filteredCars.length / pageSize) || 1);
+            } else {
+                setCars(data.content || []);
+                setTotalPages(data.totalPages || 1);
+            }
 
             if (!isHomePage) {
                 window.scrollTo({ top: 0, behavior: "smooth" });
@@ -36,6 +45,17 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    // 탭 클릭 이벤트 핸들러 수정
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
+        if (tab === 'favorite' && !userId) {
+            alert('로그인이 필요합니다.');
+            return;
+        }
+        // 탭 변경 시 차량 목록 다시 로드
+        loadCars();
     };
 
     // 즐겨찾기 목록 불러오기
@@ -93,10 +113,10 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
         }
     };
 
-    // 페이지나 사용자 ID 변경 시 데이터 로드
+    // 페이지나 사용자 ID 또는 활성 탭 변경 시 데이터 로드
     useEffect(() => {
         loadCars();
-    }, [currentPage]);
+    }, [currentPage, activeTab]);
 
     useEffect(() => {
         if (userId) {
@@ -169,7 +189,7 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
             <div className="border-b border-gray-200 mb-6">
                 <nav className="-mb-px flex space-x-8">
                     <button
-                        onClick={() => setActiveTab('all')}
+                        onClick={() => handleTabChange('all')}
                         className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                             activeTab === 'all'
                                 ? 'border-teal-500 text-teal-600'
@@ -179,14 +199,7 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
                         전체 차량
                     </button>
                     <button
-                        onClick={() => {
-                            if (userId) {
-                                setActiveTab('favorite');
-                                // 즐겨찾기 차량만 필터링하는 로직 추가 필요
-                            } else {
-                                alert('로그인이 필요합니다.');
-                            }
-                        }}
+                        onClick={() => handleTabChange('favorite')}
                         className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                             activeTab === 'favorite'
                                 ? 'border-teal-500 text-teal-600'
@@ -202,8 +215,11 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
                 <div className="rounded-md bg-red-50 p-4 mb-6">
                     <div className="flex">
                         <div className="flex-shrink-0">
-                            <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                 fill="currentColor">
+                                <path fillRule="evenodd"
+                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                      clipRule="evenodd"/>
                             </svg>
                         </div>
                         <div className="ml-3">
