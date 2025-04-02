@@ -5,11 +5,22 @@ import CarListPage from './CarListPage';
 import TestimonialSection from '../components/TestimonialSection';
 import StatsSection from '../components/StatsSection';
 import CTASection from '../components/CTASection';
+import UserDashboard from '../components/UserDashboard';
 
 const HomePage = ({ userId, favorites, setFavorites }) => {
     return (
         <>
-            <HeroSection />
+            <HeroSection userId={userId} />
+
+            {/* 로그인한 사용자에게만 대시보드 표시 */}
+            {userId && (
+                <div className="py-12 bg-gray-50">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <UserDashboard userId={userId} />
+                    </div>
+                </div>
+            )}
+
             <FeatureSection />
             <div className="py-16 bg-gray-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -32,7 +43,7 @@ const HomePage = ({ userId, favorites, setFavorites }) => {
             </div>
             <TestimonialSection />
             <StatsSection />
-            <CTASection />
+            <CTASection userId={userId} />
         </>
     );
 };
