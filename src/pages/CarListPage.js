@@ -4,9 +4,8 @@ import CarFilters from '../components/CarFilters';
 import CarCard from '../components/CarCard';
 import Pagination from '../components/Pagination';
 
-const CarListPage = ({ userId }) => {
+const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
     const [cars, setCars] = useState([]);
-    const [favorites, setFavorites] = useState(new Set());
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -22,10 +21,15 @@ const CarListPage = ({ userId }) => {
         setError(null);
 
         try {
-            const data = await fetchCars(filters, currentPage);
+            // 홈페이지에서는 최대 6개만 표시, 일반 페이지에서는 기본 설정 사용
+            const pageSize = isHomePage ? 6 : 21;
+            const data = await fetchCars(filters, currentPage, pageSize);
             setCars(data.content || []);
             setTotalPages(data.totalPages || 1);
-            window.scrollTo({ top: 0, behavior: "smooth" });
+
+            if (!isHomePage) {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
         } catch (err) {
             setError("차량 목록을 불러오는 데 실패했습니다.");
             console.error("차량 목록 로드 실패:", err);
@@ -102,6 +106,45 @@ const CarListPage = ({ userId }) => {
         }
     }, [userId]);
 
+    // 홈페이지에서는 간소화된 UI 제공
+    if (isHomePage) {
+        return (
+            <div className="max-w-7xl mx-auto">
+                {isLoading ? (
+                    <div className="py-12 flex flex-col items-center justify-center">
+                        <svg className="animate-spin h-10 w-10 text-teal-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                ) : (
+                    <>
+                        {cars.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {cars.map(car => (
+                                    <CarCard
+                                        key={car.id}
+                                        car={car}
+                                        isFavorite={favorites.has(car.id)}
+                                        onToggleFavorite={handleToggleFavorite}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="py-12 flex flex-col items-center justify-center bg-gray-50 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p className="text-lg font-medium text-gray-700 mb-1">등록된 차량이 없습니다</p>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+        );
+    }
+
+    // 일반 CarListPage UI
     return (
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="md:flex md:items-center md:justify-between mb-8">

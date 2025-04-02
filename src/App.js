@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Switch, Route } from "react-router-dom";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
+import HomePage from "./pages/HomePage";
 import CarListPage from "./pages/CarListPage";
 import CarDetailPage from "./pages/CarDetailPage";
 import LoginPage from "./pages/LoginPage";
@@ -27,6 +29,9 @@ function App() {
             <main className="flex-grow">
                 <Switch>
                     <Route exact path="/">
+                        <HomePage userId={userId} favorites={favorites} setFavorites={setFavorites} />
+                    </Route>
+                    <Route exact path="/cars">
                         <CarListPage userId={userId} favorites={favorites} setFavorites={setFavorites} />
                     </Route>
                     <Route path="/cars/:id">
@@ -43,20 +48,7 @@ function App() {
                     </Route>
                 </Switch>
             </main>
-            <footer className="bg-white border-t border-gray-200">
-                <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-                    <div className="md:flex md:items-center md:justify-between">
-                        <div className="flex justify-center md:justify-start">
-                            <h3 className="text-lg font-bold text-gray-900">AutoFinder</h3>
-                        </div>
-                        <div className="mt-8 md:mt-0">
-                            <p className="text-center text-base text-gray-500">
-                                &copy; {new Date().getFullYear()} AutoFinder. 모든 권리 보유.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }
