@@ -73,83 +73,132 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="auth-container">
-            <h2 className="auth-title">회원가입</h2>
+        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+            <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    회원가입
+                </h2>
+                <p className="mt-2 text-center text-sm text-gray-600">
+                    이미 계정이 있으신가요?{' '}
+                    <Link to="/login" className="font-medium text-teal-600 hover:text-teal-500">
+                        로그인
+                    </Link>
+                </p>
+            </div>
 
-            {message && (
-                <div className={`auth-message ${message.includes('성공') ? 'success' : 'error'}`}>
-                    {message}
-                </div>
-            )}
-
-            <form className="auth-form" onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="username">아이디</label>
-                    <input
-                        type="text"
-                        id="username"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        required
-                        disabled={isLoading}
-                        className={`form-input ${errors.username ? 'error' : ''}`}
-                        placeholder="아이디를 입력하세요"
-                    />
-                    {errors.username && <p className="error-text">{errors.username}</p>}
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="password">비밀번호</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        disabled={isLoading}
-                        className={`form-input ${errors.password ? 'error' : ''}`}
-                        placeholder="비밀번호를 입력하세요"
-                    />
-                    {errors.password && <p className="error-text">{errors.password}</p>}
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="confirmPassword">비밀번호 확인</label>
-                    <input
-                        type="password"
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        required
-                        disabled={isLoading}
-                        className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
-                        placeholder="비밀번호를 다시 입력하세요"
-                    />
-                    {errors.confirmPassword && <p className="error-text">{errors.confirmPassword}</p>}
-                </div>
-
-                <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="auth-button"
-                >
-                    {isLoading && (
-                        <span className="spinner">
-                            <svg className="h-5 w-5 mr-2 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </span>
+            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+                <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+                    {message && (
+                        <div className={`mb-4 rounded-md p-4 ${message.includes('성공') ? 'bg-green-50' : 'bg-red-50'}`}>
+                            <div className="flex">
+                                <div className="flex-shrink-0">
+                                    {message.includes('성공') ? (
+                                        <svg className="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                        </svg>
+                                    )}
+                                </div>
+                                <div className="ml-3">
+                                    <p className={`text-sm font-medium ${message.includes('성공') ? 'text-green-800' : 'text-red-800'}`}>
+                                        {message}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     )}
-                    {isLoading ? "처리 중..." : "회원가입"}
-                </button>
-            </form>
 
-            <div className="auth-link">
-                이미 계정이 있으신가요? <Link to="/login" className="text-teal-600 hover:underline">로그인</Link>
+                    <form className="space-y-6" onSubmit={handleSubmit}>
+                        <div>
+                            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                                아이디
+                            </label>
+                            <div className="mt-1">
+                                <input
+                                    id="username"
+                                    name="username"
+                                    type="text"
+                                    required
+                                    value={formData.username}
+                                    onChange={handleChange}
+                                    className={`appearance-none block w-full px-3 py-2 border ${errors.username ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
+                                    placeholder="아이디를 입력하세요"
+                                    disabled={isLoading}
+                                />
+                                {errors.username && (
+                                    <p className="mt-2 text-sm text-red-600">{errors.username}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                비밀번호
+                            </label>
+                            <div className="mt-1">
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    required
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    className={`appearance-none block w-full px-3 py-2 border ${errors.password ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
+                                    placeholder="비밀번호를 입력하세요"
+                                    disabled={isLoading}
+                                />
+                                {errors.password && (
+                                    <p className="mt-2 text-sm text-red-600">{errors.password}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                                비밀번호 확인
+                            </label>
+                            <div className="mt-1">
+                                <input
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    type="password"
+                                    required
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    className={`appearance-none block w-full px-3 py-2 border ${errors.confirmPassword ? 'border-red-300' : 'border-gray-300'} rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm`}
+                                    placeholder="비밀번호를 다시 입력하세요"
+                                    disabled={isLoading}
+                                />
+                                {errors.confirmPassword && (
+                                    <p className="mt-2 text-sm text-red-600">{errors.confirmPassword}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        처리 중...
+                                    </>
+                                ) : (
+                                    "회원가입"
+                                )}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

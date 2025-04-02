@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, BrowserRouter, Switch } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 import Header from "./components/Header";
 import CarListPage from "./pages/CarListPage";
 import CarDetailPage from "./pages/CarDetailPage";
@@ -22,7 +22,7 @@ function App() {
     }, []);
 
     return (
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col min-h-screen bg-gray-50">
             <Header userId={userId} setUserId={setUserId} setFavorites={setFavorites} />
             <main className="flex-grow">
                 <Switch>
@@ -43,15 +43,16 @@ function App() {
                     </Route>
                 </Switch>
             </main>
-            <footer className="bg-gray-800 text-white py-4">
-                <div className="container mx-auto px-4">
-                    <div className="flex flex-col md:flex-row justify-between items-center">
-                        <div className="text-center md:text-left mb-4 md:mb-0">
-                            <p className="text-lg font-semibold">AutoFinder</p>
-                            <p className="text-sm text-gray-400">© {new Date().getFullYear()} 모든 권리 보유</p>
+            <footer className="bg-white border-t border-gray-200">
+                <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+                    <div className="md:flex md:items-center md:justify-between">
+                        <div className="flex justify-center md:justify-start">
+                            <h3 className="text-lg font-bold text-gray-900">AutoFinder</h3>
                         </div>
-                        <div className="text-sm text-gray-400">
-                            <p>본 사이트는 학습 및 데모 목적으로 제작되었습니다.</p>
+                        <div className="mt-8 md:mt-0">
+                            <p className="text-center text-base text-gray-500">
+                                &copy; {new Date().getFullYear()} AutoFinder. 모든 권리 보유.
+                            </p>
                         </div>
                     </div>
                 </div>
