@@ -64,7 +64,7 @@ const navigation = {
 
 const Footer = () => {
     return (
-        <footer className="bg-white border-t border-gray-200">
+        <footer className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
             <div className="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
                     <div className="space-y-4">
@@ -72,23 +72,23 @@ const Footer = () => {
                             <svg className="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             </svg>
-                            <span className="text-xl font-bold text-gray-900">AutoFinder</span>
+                            <span className="text-xl font-bold text-gray-900 dark:text-white">AutoFinder</span>
                         </div>
-                        <p className="text-gray-500 text-sm">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm">
                             오토파인더는 사용자가 원하는 조건에 맞는 중고차를 쉽게 검색하고 비교할 수 있는 플랫폼입니다.
                         </p>
-                        <p className="text-gray-400 text-xs">
+                        <p className="text-gray-400 dark:text-gray-500 text-xs">
                             &copy; {new Date().getFullYear()} AutoFinder. 모든 권리 보유.
                         </p>
                     </div>
 
                     <div>
-                        <h3 className="text-sm font-semibold text-gray-600 tracking-wider uppercase mb-4">
+                        <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300 tracking-wider uppercase mb-4">
                             바로가기
                         </h3>
                         <nav className="flex flex-wrap gap-4">
                             {navigation.main.map((item) => (
-                                <Link key={item.name} to={item.href} className="text-base text-gray-500 hover:text-gray-900">
+                                <Link key={item.name} to={item.href} className="text-base text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                                     {item.name}
                                 </Link>
                             ))}
@@ -96,12 +96,12 @@ const Footer = () => {
                     </div>
 
                     <div>
-                        <h3 className="text-sm font-semibold text-gray-600 tracking-wider uppercase mb-4">
+                        <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-300 tracking-wider uppercase mb-4">
                             소셜 미디어
                         </h3>
                         <div className="flex space-x-6">
                             {navigation.social.map((item) => (
-                                <a key={item.name} href={item.href} className="text-gray-400 hover:text-gray-500">
+                                <a key={item.name} href={item.href} className="text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400">
                                     <span className="sr-only">{item.name}</span>
                                     <item.icon className="h-6 w-6" aria-hidden="true" />
                                 </a>

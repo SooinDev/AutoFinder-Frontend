@@ -42,23 +42,23 @@ const LoginPage = ({ setUserId }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 transition-colors duration-300">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
                     로그인
                 </h2>
-                <p className="mt-2 text-center text-sm text-gray-600">
+                <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
                     계정이 없으신가요?{' '}
-                    <Link to="/register" className="font-medium text-teal-600 hover:text-teal-500">
+                    <Link to="/register" className="font-medium text-teal-600 dark:text-teal-400 hover:text-teal-500 dark:hover:text-teal-300">
                         회원가입
                     </Link>
                 </p>
             </div>
 
             <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+                <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
                     {message && (
-                        <div className={`mb-4 rounded-md p-4 ${message.includes('성공') ? 'bg-green-50' : 'bg-red-50'}`}>
+                        <div className={`mb-4 rounded-md p-4 ${message.includes('성공') ? 'bg-green-50 dark:bg-green-900 dark:bg-opacity-20' : 'bg-red-50 dark:bg-red-900 dark:bg-opacity-20'}`}>
                             <div className="flex">
                                 <div className="flex-shrink-0">
                                     {message.includes('성공') ? (
@@ -72,7 +72,7 @@ const LoginPage = ({ setUserId }) => {
                                     )}
                                 </div>
                                 <div className="ml-3">
-                                    <p className={`text-sm font-medium ${message.includes('성공') ? 'text-green-800' : 'text-red-800'}`}>
+                                    <p className={`text-sm font-medium ${message.includes('성공') ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'}`}>
                                         {message}
                                     </p>
                                 </div>
@@ -82,7 +82,7 @@ const LoginPage = ({ setUserId }) => {
 
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         <div>
-                            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 아이디
                             </label>
                             <div className="mt-1">
@@ -93,7 +93,7 @@ const LoginPage = ({ setUserId }) => {
                                     required
                                     value={formData.username}
                                     onChange={handleChange}
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                                     placeholder="아이디를 입력하세요"
                                     disabled={isLoading}
                                 />
@@ -101,7 +101,7 @@ const LoginPage = ({ setUserId }) => {
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 비밀번호
                             </label>
                             <div className="mt-1">
@@ -112,7 +112,7 @@ const LoginPage = ({ setUserId }) => {
                                     required
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                                     placeholder="비밀번호를 입력하세요"
                                     disabled={isLoading}
                                 />
@@ -127,10 +127,10 @@ const LoginPage = ({ setUserId }) => {
                                     type="checkbox"
                                     checked={formData.rememberMe}
                                     onChange={handleChange}
-                                    className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 rounded"
+                                    className="h-4 w-4 text-teal-600 focus:ring-teal-500 border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700"
                                     disabled={isLoading}
                                 />
-                                <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-900">
+                                <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                                     로그인 유지
                                 </label>
                             </div>
@@ -140,7 +140,7 @@ const LoginPage = ({ setUserId }) => {
                             <button
                                 type="submit"
                                 disabled={isLoading}
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 focus:ring-offset-gray-900"
                             >
                                 {isLoading ? (
                                     <>

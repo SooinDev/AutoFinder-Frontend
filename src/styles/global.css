@@ -19,6 +19,12 @@ body {
     line-height: 1.5;
 }
 
+/* 다크 모드 기본 스타일 */
+.dark body {
+    background-color: #111827;
+    color: #f9fafb;
+}
+
 a {
     color: inherit;
     text-decoration: none;
@@ -77,4 +83,23 @@ button {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #a1a1a1;
+}
+
+/* 다크 모드에서의 스크롤바 스타일 */
+.dark ::-webkit-scrollbar-track {
+    background: #1f2937;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #4b5563;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+/* 다크 모드 전환 애니메이션 */
+.transition-colors {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 300ms;
 }

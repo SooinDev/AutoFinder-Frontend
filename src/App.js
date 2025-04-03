@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ModelAnalysisPage from "./pages/ModelAnalysisPage";
+import { ThemeProvider } from "./ThemeContext";
 import "./styles/global.css";
 
 function App() {
@@ -25,35 +26,37 @@ function App() {
     }, []);
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-50">
-            <Header userId={userId} setUserId={setUserId} setFavorites={setFavorites}/>
-            <main className="flex-grow">
-                <Switch>
-                    <Route exact path="/">
-                        <HomePage userId={userId} favorites={favorites} setFavorites={setFavorites}/>
-                    </Route>
-                    <Route exact path="/cars">
-                        <CarListPage userId={userId} favorites={favorites} setFavorites={setFavorites}/>
-                    </Route>
-                    <Route path="/cars/:id">
-                        <CarDetailPage userId={userId} favorites={favorites} setFavorites={setFavorites}/>
-                    </Route>
-                    <Route path="/login">
-                        <LoginPage setUserId={setUserId}/>
-                    </Route>
-                    <Route path="/register">
-                        <RegisterPage/>
-                    </Route>
-                    <Route path="/analysis/:model?">
-                        <ModelAnalysisPage />
-                    </Route>
-                    <Route path="*">
-                        <NotFoundPage/>
-                    </Route>
-                </Switch>
-            </main>
-            <Footer/>
-        </div>
+        <ThemeProvider>
+            <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+                <Header userId={userId} setUserId={setUserId} setFavorites={setFavorites}/>
+                <main className="flex-grow">
+                    <Switch>
+                        <Route exact path="/">
+                            <HomePage userId={userId} favorites={favorites} setFavorites={setFavorites}/>
+                        </Route>
+                        <Route exact path="/cars">
+                            <CarListPage userId={userId} favorites={favorites} setFavorites={setFavorites}/>
+                        </Route>
+                        <Route path="/cars/:id">
+                            <CarDetailPage userId={userId} favorites={favorites} setFavorites={setFavorites}/>
+                        </Route>
+                        <Route path="/login">
+                            <LoginPage setUserId={setUserId}/>
+                        </Route>
+                        <Route path="/register">
+                            <RegisterPage/>
+                        </Route>
+                        <Route path="/analysis/:model?">
+                            <ModelAnalysisPage />
+                        </Route>
+                        <Route path="*">
+                            <NotFoundPage/>
+                        </Route>
+                    </Switch>
+                </main>
+                <Footer/>
+            </div>
+        </ThemeProvider>
     );
 }
 
