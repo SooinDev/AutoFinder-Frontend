@@ -59,7 +59,6 @@ function App() {
                         <Route path="/analysis/:model?">
                             <ModelAnalysisPage />
                         </Route>
-                        {/* 즐겨찾기 페이지 라우트 추가 */}
                         <Route path="/favorites">
                             <FavoritesPage userId={userId} favorites={favorites} setFavorites={setFavorites}/>
                         </Route>
