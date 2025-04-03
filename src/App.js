@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Switch, Route } from "react-router-dom";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import Header from "./components/common/Header";
+import Footer from "./components/common/Footer";
 import HomePage from "./pages/HomePage";
 import CarListPage from "./pages/CarListPage";
 import CarDetailPage from "./pages/CarDetailPage";
@@ -10,7 +10,7 @@ import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ModelAnalysisPage from "./pages/ModelAnalysisPage";
 import FavoritesPage from "./pages/FavoritesPage"; // 즐겨찾기 페이지 임포트
-import { ThemeProvider } from "./ThemeContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import "./styles/global.css";
 
 function App() {

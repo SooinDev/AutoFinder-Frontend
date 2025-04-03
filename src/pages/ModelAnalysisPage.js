@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import PriceAnalysisChart from '../components/PriceAnalysisChart';
+import PriceAnalysisChart from '../components/analytics/PriceAnalysisChart';
 import { useParams } from 'react-router-dom';
 
 const ModelAnalysisPage = () => {

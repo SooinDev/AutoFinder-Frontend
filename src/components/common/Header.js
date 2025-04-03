@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import { ThemeContext } from '../ThemeContext';
+import { ThemeContext } from '../../context/ThemeContext';
 
 const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
     const history = useHistory();

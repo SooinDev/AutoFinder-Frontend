@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { fetchCars, fetchFavorites, toggleFavorite } from '../api/services';
-import CarFilters from '../components/CarFilters';
-import CarCard from '../components/CarCard';
-import Pagination from '../components/Pagination';
+import CarFilters from '../components/car/CarFilters';
+import CarCard from '../components/car/CarCard';
+import Pagination from '../components/common/Pagination';
 import { useHistory, useLocation } from 'react-router-dom';
 
 const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
