@@ -7,29 +7,30 @@ import StatsSection from '../components/StatsSection';
 import CTASection from '../components/CTASection';
 import UserDashboard from '../components/UserDashboard';
 
-const HomePage = ({ userId, favorites, setFavorites }) => {
+// username 파라미터 추가
+const HomePage = ({ userId, username, favorites, setFavorites }) => {
     return (
         <>
-            <HeroSection userId={userId} />
+            <HeroSection userId={userId} username={username} />
 
             {/* 로그인한 사용자에게만 대시보드 표시 */}
             {userId && (
-                <div className="py-12 bg-gray-50">
+                <div className="py-12 bg-gray-50 dark:bg-gray-900">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <UserDashboard userId={userId} />
+                        <UserDashboard userId={userId} username={username} />
                     </div>
                 </div>
             )}
 
             <FeatureSection />
-            <div className="py-16 bg-gray-50">
+            <div className="py-16 bg-gray-50 dark:bg-gray-900">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
-                        <h2 className="text-base text-teal-600 font-semibold tracking-wide uppercase">차량 둘러보기</h2>
-                        <p className="mt-2 text-3xl font-extrabold text-gray-900 sm:text-4xl">
+                        <h2 className="text-base text-teal-600 dark:text-teal-400 font-semibold tracking-wide uppercase">차량 둘러보기</h2>
+                        <p className="mt-2 text-3xl font-extrabold text-gray-900 dark:text-white sm:text-4xl">
                             최신 등록 차량
                         </p>
-                        <p className="mt-4 max-w-2xl text-xl text-gray-500 mx-auto">
+                        <p className="mt-4 max-w-2xl text-xl text-gray-500 dark:text-gray-400 mx-auto">
                             오토파인더에 새롭게 등록된 차량들을 확인해보세요.
                         </p>
                     </div>
@@ -43,7 +44,7 @@ const HomePage = ({ userId, favorites, setFavorites }) => {
             </div>
             <TestimonialSection />
             <StatsSection />
-            <CTASection userId={userId} />
+            <CTASection userId={userId} username={username} />
         </>
     );
 };

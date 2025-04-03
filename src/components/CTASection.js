@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const CTASection = ({ userId }) => {
+// username 파라미터 추가
+const CTASection = ({ userId, username }) => {
     const isLoggedIn = !!userId;
 
     return (
-        <div className="bg-white">
+        <div className="bg-white dark:bg-gray-800 transition-colors duration-300">
             <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
                 <div className="bg-gradient-to-br from-teal-600 to-teal-700 rounded-3xl shadow-xl overflow-hidden lg:grid lg:grid-cols-2 lg:gap-4">
                     <div className="pt-10 pb-12 px-6 sm:pt-16 sm:px-16 lg:py-16 lg:pr-0 xl:py-20 xl:px-20">
@@ -13,7 +14,8 @@ const CTASection = ({ userId }) => {
                             {isLoggedIn ? (
                                 <>
                                     <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
-                                        <span className="block">안녕하세요, {userId}님</span>
+                                        {/* userId 대신 username 사용 */}
+                                        <span className="block">안녕하세요, {username || "사용자"}님</span>
                                         <span className="block">즐거운 자동차 여정이 되세요!</span>
                                     </h2>
                                     <p className="mt-4 text-lg leading-6 text-teal-50">

@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { ThemeContext } from '../ThemeContext';
 
-const Header = ({ userId, setUserId, setFavorites }) => {
+const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
     const history = useHistory();
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -11,15 +11,26 @@ const Header = ({ userId, setUserId, setFavorites }) => {
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("userId");
+        localStorage.removeItem("username"); // username도 함께 제거
         sessionStorage.removeItem("token");
         sessionStorage.removeItem("userId");
+        sessionStorage.removeItem("username"); // username도 함께 제거
 
         if (typeof setFavorites === 'function') {
             setFavorites(new Set());
         }
 
         setUserId(null);
+        setUsername(null); // username 상태 초기화
         history.push("/");
+    };
+
+    // 사용자 이름의 첫 글자 가져오기 (프로필 아이콘에 표시)
+    const getInitial = () => {
+        if (username && typeof username === 'string' && username.length > 0) {
+            return username.charAt(0).toUpperCase();
+        }
+        return 'U'; // 기본값
     };
 
     return (
@@ -100,10 +111,10 @@ const Header = ({ userId, setUserId, setFavorites }) => {
                                         >
                                             <div
                                                 className="h-8 w-8 rounded-full bg-teal-500 flex items-center justify-center text-white">
-                                                {userId && typeof userId === 'string' ? userId.charAt(0)?.toUpperCase() : 'U'}
+                                                {getInitial()}
                                             </div>
                                             <span className="ml-2 text-gray-700 dark:text-gray-300 hidden md:block">
-                                                {userId || "사용자"}님
+                                                {username || "사용자"}님
                                             </span>
                                         </button>
                                         <button
@@ -219,11 +230,11 @@ const Header = ({ userId, setUserId, setFavorites }) => {
                                 <div className="flex items-center px-4">
                                     <div className="flex-shrink-0">
                                         <div className="h-10 w-10 rounded-full bg-teal-500 flex items-center justify-center text-white">
-                                            {userId && typeof userId === 'string' ? userId.charAt(0)?.toUpperCase() : 'U'}
+                                            {getInitial()}
                                         </div>
                                     </div>
                                     <div className="ml-3">
-                                        <div className="text-base font-medium text-gray-800 dark:text-white">{userId || "사용자"}</div>
+                                        <div className="text-base font-medium text-gray-800 dark:text-white">{username || "사용자"}</div>
                                     </div>
                                 </div>
                                 <div className="mt-3 space-y-1">

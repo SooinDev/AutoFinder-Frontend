@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const HeroSection = ({ userId }) => {
+// username 파라미터 추가
+const HeroSection = ({ userId, username }) => {
     const isLoggedIn = !!userId;
 
     return (
@@ -24,14 +25,15 @@ const HeroSection = ({ userId }) => {
                             <span className="block text-sm font-semibold uppercase tracking-wide text-white">AutoFinder</span>
                             {isLoggedIn ? (
                                 <span className="mt-1 block text-4xl tracking-tight font-extrabold sm:text-5xl xl:text-6xl">
-                  <span className="block text-white">{userId && typeof userId === 'string' ? userId : '사용자'}님,</span>
-                  <span className="block text-teal-200">환영합니다!</span>
-                </span>
+                                    {/* userId 대신 username 사용 */}
+                                    <span className="block text-white">{username && typeof username === 'string' ? username : '사용자'}님,</span>
+                                    <span className="block text-teal-200">환영합니다!</span>
+                                </span>
                             ) : (
                                 <span className="mt-1 block text-4xl tracking-tight font-extrabold sm:text-5xl xl:text-6xl">
-                  <span className="block text-white">당신에게 맞는</span>
-                  <span className="block text-teal-200">완벽한 중고차</span>
-                </span>
+                                    <span className="block text-white">당신에게 맞는</span>
+                                    <span className="block text-teal-200">완벽한 중고차</span>
+                                </span>
                             )}
                         </h1>
                         {isLoggedIn ? (

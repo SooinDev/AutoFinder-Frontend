@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchFavorites } from '../api/services';
 
-const UserDashboard = ({ userId }) => {
+// username 파라미터 추가
+const UserDashboard = ({ userId, username }) => {
     const [favorites, setFavorites] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [recentSearches, setRecentSearches] = useState([]);
@@ -44,7 +45,10 @@ const UserDashboard = ({ userId }) => {
     return (
         <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg overflow-hidden transition-colors duration-300">
             <div className="bg-gradient-to-r from-teal-600 to-teal-700 px-6 py-4">
-                <h2 className="text-lg font-medium text-white">{userId && typeof userId === 'string' ? userId : '사용자'}님의 대시보드</h2>
+                <h2 className="text-lg font-medium text-white">
+                    {/* userId 대신 username 사용 */}
+                    {username && typeof username === 'string' ? username : '사용자'}님의 대시보드
+                </h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
