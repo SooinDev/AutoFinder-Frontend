@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { login } from '../api/services';
 
-const LoginPage = ({ setUserId }) => {
+const LoginPage = ({ setUserId, setUsername }) => {
     const [formData, setFormData] = useState({ username: "", password: "", rememberMe: false });
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -21,17 +21,21 @@ const LoginPage = ({ setUserId }) => {
         try {
             const userData = await login(formData);
             const { token, userId } = userData;
+            const usernameToStore = formData.username; // 사용자가 입력한 username 사용
 
             // "로그인 유지" 체크 여부에 따라 저장 방식 변경
             if (formData.rememberMe) {
                 localStorage.setItem("token", token);
                 localStorage.setItem("userId", userId);
+                localStorage.setItem("username", usernameToStore); // username 저장
             } else {
                 sessionStorage.setItem("token", token);
                 sessionStorage.setItem("userId", userId);
+                sessionStorage.setItem("username", usernameToStore); // username 저장
             }
 
             setUserId(userId);
+            setUsername(usernameToStore); // 상태 업데이트
             setMessage("로그인 성공! 차량 목록으로 이동합니다.");
             setTimeout(() => history.push("/"), 1000);
         } catch (error) {
