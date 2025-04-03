@@ -2,6 +2,7 @@ module.exports = {
     content: [
         "./src/**/*.{js,jsx,ts,tsx}",
     ],
+    darkMode: 'class', // 다크 모드 활성화 (class 전략 사용)
     theme: {
         extend: {
             colors: {
