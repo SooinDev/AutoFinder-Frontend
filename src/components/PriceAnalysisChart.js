@@ -23,7 +23,18 @@ const PriceAnalysisChart = ({ modelName }) => {
                 const response = await axios.get(
                     `${API_BASE_URL}/analytics/price-by-year/${encodeURIComponent(modelName)}`
                 );
-                setPriceData(response.data);
+
+                // 받아온 데이터를 연식 숫자 기준으로 정렬 (오래된 차 → 최신 차 순)
+                const sortedData = [...response.data].sort((a, b) => {
+                    // originalYear에서 년식을 추출 (예: "2023년식" → "2023")
+                    const yearA = a.originalYear;
+                    const yearB = b.originalYear;
+
+                    // 연도 비교 (숫자로 변환하여 비교)
+                    return parseInt(yearA) - parseInt(yearB);
+                });
+
+                setPriceData(sortedData);
             } catch (err) {
                 console.error("가격 통계 데이터 로드 실패:", err);
                 setError("데이터를 불러오는 중 오류가 발생했습니다.");
@@ -93,7 +104,7 @@ const PriceAnalysisChart = ({ modelName }) => {
                         />
                         <Tooltip
                             formatter={formatPrice}
-                            labelFormatter={value => `${value} 연식`}
+                            labelFormatter={value => value}
                         />
                         <Legend />
                         <Area
