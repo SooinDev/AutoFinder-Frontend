@@ -1,11 +1,11 @@
 import React from 'react';
-import HeroSection from '../components/HeroSection';
-import FeatureSection from '../components/FeatureSection';
+import HeroSection from '../components/home/HeroSection';
+import FeatureSection from '../components/home/FeatureSection';
 import CarListPage from './CarListPage';
-import TestimonialSection from '../components/TestimonialSection';
-import StatsSection from '../components/StatsSection';
-import CTASection from '../components/CTASection';
-import UserDashboard from '../components/UserDashboard';
+import TestimonialSection from '../components/home/TestimonialSection';
+import StatsSection from '../components/home/StatsSection';
+import CTASection from '../components/home/CTASection';
+import UserDashboard from '../components/dashboard/UserDashboard';
 
 // username 파라미터 추가
 const HomePage = ({ userId, username, favorites, setFavorites }) => {

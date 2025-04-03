@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchFavorites, toggleFavorite } from '../api/services';
-import CarCard from '../components/CarCard';
-import Pagination from '../components/Pagination';
+import CarCard from '../components/car/CarCard';
+import Pagination from '../components/common/Pagination';
 import { useHistory } from 'react-router-dom';
 
 const FavoritesPage = ({ userId, favorites, setFavorites }) => {

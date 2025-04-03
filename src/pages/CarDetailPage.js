@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { fetchCarById, toggleFavorite } from '../api/services';
-import CarInfo from '../components/CarInfo';
-import PriceAnalysisChart from '../components/PriceAnalysisChart';
+import CarInfo from '../components/car/CarInfo';
+import PriceAnalysisChart from '../components/analytics/PriceAnalysisChart';
 
 const CarDetailPage = ({ userId, favorites, setFavorites }) => {
     const { id } = useParams();

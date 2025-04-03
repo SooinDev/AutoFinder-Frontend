@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchFavorites } from '../api/services';
+import { fetchFavorites } from '../../api/services';
 
 // username 파라미터 추가
 const UserDashboard = ({ userId, username }) => {
