@@ -26,8 +26,9 @@ const Header = ({ userId, setUserId, setFavorites }) => {
                 <div className="flex justify-between h-16">
                     <div className="flex items-center">
                         <div className="flex-shrink-0 flex items-center">
-                            <svg className="h-8 w-8 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            <svg className="h-8 w-8 text-teal-600" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
                             </svg>
                             <Link to="/" className="ml-2 text-xl font-bold text-gray-900">
                                 AutoFinder
@@ -36,23 +37,32 @@ const Header = ({ userId, setUserId, setFavorites }) => {
 
                         {/* 로그인 상태에 따른 네비게이션 */}
                         <nav className="hidden md:ml-8 md:flex md:space-x-8">
-                            <Link to="/" className="text-gray-900 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">
+                            <Link to="/"
+                                  className="text-gray-900 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">
                                 홈
                             </Link>
-                            <Link to="/cars" className="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">
+                            <Link to="/cars"
+                                  className="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">
                                 차량 검색
+                            </Link>
+                            <Link to="/analysis"
+                                  className="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">
+                                시장 분석
                             </Link>
                             {token && (
                                 <>
-                                    <Link to="/favorites" className="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">
+                                    <Link to="/favorites"
+                                          className="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">
                                         즐겨찾기
                                     </Link>
-                                    <Link to="/notifications" className="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">
+                                    <Link to="/notifications"
+                                          className="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">
                                         알림
                                     </Link>
                                 </>
                             )}
-                            <Link to="/help" className="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">
+                            <Link to="/help"
+                                  className="text-gray-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 text-sm font-medium">
                                 이용 안내
                             </Link>
                         </nav>
@@ -69,7 +79,8 @@ const Header = ({ userId, setUserId, setFavorites }) => {
                                             className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
                                             onClick={() => history.push('/profile')}
                                         >
-                                            <div className="h-8 w-8 rounded-full bg-teal-500 flex items-center justify-center text-white">
+                                            <div
+                                                className="h-8 w-8 rounded-full bg-teal-500 flex items-center justify-center text-white">
                                                 {userId && typeof userId === 'string' ? userId.charAt(0)?.toUpperCase() : 'U'}
                                             </div>
                                             <span className="ml-2 text-gray-700 hidden md:block">

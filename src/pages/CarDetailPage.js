@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { fetchCarById, toggleFavorite } from '../api/services';
 import CarInfo from '../components/CarInfo';
+import PriceAnalysisChart from '../components/PriceAnalysisChart';
 
 const CarDetailPage = ({ userId, favorites, setFavorites }) => {
     const { id } = useParams();
@@ -176,6 +177,12 @@ const CarDetailPage = ({ userId, favorites, setFavorites }) => {
                     )}
 
                     <CarInfo car={car} />
+
+                    {/* 가격 분석 차트 추가 */}
+                    <div className="mt-8">
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">시장 가격 분석</h2>
+                        <PriceAnalysisChart modelName={car.model} />
+                    </div>
                 </div>
             )}
         </div>

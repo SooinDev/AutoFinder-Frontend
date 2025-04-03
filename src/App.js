@@ -8,6 +8,7 @@ import CarDetailPage from "./pages/CarDetailPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import ModelAnalysisPage from "./pages/ModelAnalysisPage";
 import "./styles/global.css";
 
 function App() {
@@ -42,6 +43,9 @@ function App() {
                     </Route>
                     <Route path="/register">
                         <RegisterPage/>
+                    </Route>
+                    <Route path="/analysis/:model?">
+                        <ModelAnalysisPage />
                     </Route>
                     <Route path="*">
                         <NotFoundPage/>
