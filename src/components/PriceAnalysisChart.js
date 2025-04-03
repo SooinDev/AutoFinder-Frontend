@@ -82,7 +82,7 @@ const PriceAnalysisChart = ({ modelName }) => {
                 <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart
                         data={priceData}
-                        margin={{ top: 10, right: 30, left: 20, bottom: 30 }}
+                        margin={{ top: 40, right: 30, left: 20, bottom: 30 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
                         <XAxis
@@ -97,8 +97,8 @@ const PriceAnalysisChart = ({ modelName }) => {
                             tickFormatter={value => `${value}만`}
                             label={{
                                 value: '가격 (만원)',
-                                angle: -90,
-                                position: 'insideLeft',
+                                position: 'top',
+                                offset: 20,
                                 style: { textAnchor: 'middle' }
                             }}
                         />
