@@ -1,6 +1,31 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 const CarFilters = ({ filters, setFilters, onSearch, onReset }) => {
+    const location = useLocation();
+
+    // 컴포넌트가 마운트될 때 URL 쿼리 파라미터를 확인하여 필터 상태 초기화
+    useEffect(() => {
+        // URL 파라미터 파싱
+        const searchParams = new URLSearchParams(location.search);
+        const updatedFilters = { ...filters };
+        let hasChanged = false;
+
+        // 각 필터 항목에 대해 URL 파라미터 확인
+        Object.keys(filters).forEach(key => {
+            const value = searchParams.get(key);
+            if (value !== null && updatedFilters[key] !== value) {
+                updatedFilters[key] = value;
+                hasChanged = true;
+            }
+        });
+
+        // 필터 값이 변경되었다면 상태 업데이트
+        if (hasChanged) {
+            setFilters(updatedFilters);
+        }
+    }, [location.search]); // 의존성 배열에 location.search 추가
+
     const years = Array.from({ length: 25 }, (_, i) => {
         const year = new Date().getFullYear() - i;
         return { value: year.toString(), label: `${year}년식` };
@@ -18,8 +43,13 @@ const CarFilters = ({ filters, setFilters, onSearch, onReset }) => {
         setFilters({ ...filters, [e.target.name]: e.target.value });
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSearch();
+    };
+
     return (
-        <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg mb-8 transition-colors duration-300">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg mb-8 transition-colors duration-300">
             <div className="p-6">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">차량 검색 필터</h3>
 
@@ -137,20 +167,21 @@ const CarFilters = ({ filters, setFilters, onSearch, onReset }) => {
 
                 <div className="mt-6 flex justify-end">
                     <button
+                        type="button"
                         onClick={onReset}
                         className="mr-3 inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
                     >
                         초기화
                     </button>
                     <button
-                        onClick={onSearch}
+                        type="submit"
                         className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-teal-600 hover:bg-teal-700"
                     >
                         검색하기
                     </button>
                 </div>
             </div>
-        </div>
+        </form>
     );
 };
 
