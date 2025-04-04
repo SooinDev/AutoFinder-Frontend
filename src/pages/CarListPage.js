@@ -1,128 +1,232 @@
-import React, { useState, useEffect } from 'react';
+import React, { useReducer, useEffect, useCallback } from 'react';
 import { fetchCars, fetchFavorites, toggleFavorite } from '../api/services';
 import CarFilters from '../components/car/CarFilters';
 import CarCard from '../components/car/CarCard';
 import Pagination from '../components/common/Pagination';
 import { useHistory, useLocation } from 'react-router-dom';
 
+// 초기 상태 정의
+const initialState = {
+    cars: [],
+    favoriteCars: [],
+    totalPages: 1,
+    currentPage: 0,
+    isLoading: false,
+    error: null,
+    activeTab: 'all',
+    filters: {
+        model: "", minPrice: "", maxPrice: "",
+        minMileage: "", maxMileage: "", fuel: "",
+        region: "", year: ""
+    },
+    initialLoad: true
+};
+
+// 리듀서 함수 정의
+function carListReducer(state, action) {
+    switch (action.type) {
+        case 'INITIALIZE_FROM_URL':
+            return {
+                ...state,
+                currentPage: action.page || 0,
+                activeTab: action.tab || 'all',
+                filters: action.filters || state.filters,
+                error: action.tab === 'favorite' && !action.userId
+                    ? "즐겨찾기 목록을 보려면 로그인이 필요합니다."
+                    : null
+            };
+        case 'SET_CARS':
+            return {
+                ...state,
+                cars: action.payload.content || [],
+                totalPages: action.payload.totalPages || 1,
+                isLoading: false,
+                initialLoad: false
+            };
+        case 'LOAD_FAVORITES':
+            return {
+                ...state,
+                favoriteCars: action.payload || []
+            };
+        case 'SET_PAGE':
+            return {
+                ...state,
+                currentPage: action.payload
+            };
+        case 'SET_FILTERS':
+            return {
+                ...state,
+                filters: action.payload,
+                // 필터 변경 시 첫 페이지로 리셋
+                currentPage: 0
+            };
+        case 'RESET_FILTERS':
+            return {
+                ...state,
+                filters: {
+                    model: "", minPrice: "", maxPrice: "",
+                    minMileage: "", maxMileage: "", fuel: "",
+                    region: "", year: ""
+                },
+                currentPage: 0
+            };
+        case 'SET_TAB':
+            return {
+                ...state,
+                activeTab: action.payload,
+                currentPage: 0,
+                error: action.payload === 'favorite' && !action.userId
+                    ? "즐겨찾기 목록을 보려면 로그인이 필요합니다."
+                    : null
+            };
+        case 'LOADING_START':
+            return {
+                ...state,
+                isLoading: true,
+                error: null
+            };
+        case 'LOADING_ERROR':
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload
+            };
+        default:
+            return state;
+    }
+}
+
 const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
     const history = useHistory();
     const location = useLocation();
-    const [cars, setCars] = useState([]);
-    const [favoriteCars, setFavoriteCars] = useState([]); // 즐겨찾기한 차량 데이터 저장
-    const [totalPages, setTotalPages] = useState(1);
-    const [currentPage, setCurrentPage] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState('all');
-    const [filters, setFilters] = useState({
-        model: "", minPrice: "", maxPrice: "", minMileage: "", maxMileage: "", fuel: "", region: "", year: ""
-    });
+    const [state, dispatch] = useReducer(carListReducer, initialState);
 
-    // URL 쿼리 파라미터 파싱
+    const {
+        cars, favoriteCars, totalPages, currentPage,
+        isLoading, error, activeTab, filters, initialLoad
+    } = state;
+
+    // URL 파라미터 초기화 (컴포넌트 마운트 시 1회 실행)
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
-
-        // 페이지 정보 파싱
         const page = queryParams.get('page');
-        if (page !== null) {
-            setCurrentPage(parseInt(page) - 1); // URL은 1부터 시작, 내부 상태는 0부터 시작
-        }
+        const tab = queryParams.get('tab');
 
         // 필터 정보 파싱
-        const newFilters = { ...filters };
-        for (const key of Object.keys(filters)) {
+        const parsedFilters = { ...initialState.filters };
+        for (const key of Object.keys(parsedFilters)) {
             const value = queryParams.get(key);
             if (value !== null) {
-                newFilters[key] = value;
+                parsedFilters[key] = value;
             }
         }
-        setFilters(newFilters);
 
-        // 탭 정보 파싱
-        const tab = queryParams.get('tab');
-        if (tab === 'favorite') {
-            setActiveTab('favorite');
-        } else {
-            setActiveTab('all');
-        }
-    }, [location.search]);
+        // URL 정보로 상태 초기화
+        dispatch({
+            type: 'INITIALIZE_FROM_URL',
+            page: page ? parseInt(page) - 1 : 0,
+            tab: tab === 'favorite' ? 'favorite' : 'all',
+            filters: parsedFilters,
+            userId
+        });
+    }, [location.search, userId]);
 
     // URL 업데이트 함수
-    const updateUrl = (page, tab, newFilters) => {
+    const updateUrl = useCallback(() => {
         const params = new URLSearchParams();
 
-        // 페이지 정보 추가 (1부터 시작하도록 변환)
-        if (page !== undefined && page > 0) {
-            params.append('page', page + 1);
+        // 페이지 정보 (1부터 시작하도록 변환)
+        params.set('page', currentPage + 1);
+
+        // 탭 정보
+        if (activeTab === 'favorite') {
+            params.set('tab', 'favorite');
         }
 
-        // 탭 정보 추가
-        if (tab === 'favorite') {
-            params.append('tab', 'favorite');
-        }
-
-        // 필터 정보 추가 (값이 있는 필터만)
-        const filtersToUse = newFilters || filters;
-        for (const [key, value] of Object.entries(filtersToUse)) {
+        // 필터 정보 (값이 있는 필터만)
+        for (const [key, value] of Object.entries(filters)) {
             if (value) {
-                params.append(key, value);
+                params.set(key, value);
             }
         }
 
-        // 히스토리 업데이트 (URL 변경)
-        const newUrl = `/cars?${params.toString()}`;
-        history.push(newUrl);
-    };
+        // URL 업데이트
+        const newUrl = `${location.pathname}?${params.toString()}`;
+        history.replace(newUrl);
+    }, [history, location.pathname, currentPage, activeTab, filters]);
 
-    // 차량 목록 불러오기
-    const loadCars = async () => {
-        if (isHomePage) return; // 홈페이지에서는 별도 처리
+    // 차량 데이터 로드 함수
+    const loadCars = useCallback(async () => {
+        if (isHomePage || activeTab === 'favorite') return;
 
-        setIsLoading(true);
-        setError(null);
+        dispatch({ type: 'LOADING_START' });
 
         try {
             const pageSize = 21;
             const data = await fetchCars(filters, currentPage, pageSize);
 
-            // 모든 차량 데이터 저장
-            setCars(data.content || []);
-            setTotalPages(data.totalPages || 1);
+            dispatch({ type: 'SET_CARS', payload: data });
 
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            // 페이지가 총 페이지 수보다 크면 첫 페이지로 리셋
+            if (currentPage >= data.totalPages && data.totalPages > 0) {
+                dispatch({ type: 'SET_PAGE', payload: 0 });
+            }
         } catch (err) {
-            setError("차량 목록을 불러오는 데 실패했습니다.");
             console.error("차량 목록 로드 실패:", err);
-        } finally {
-            setIsLoading(false);
+            dispatch({
+                type: 'LOADING_ERROR',
+                payload: "차량 목록을 불러오는 데 실패했습니다."
+            });
         }
-    };
+    }, [isHomePage, activeTab, filters, currentPage]);
 
-    // 즐겨찾기 목록 불러오기
-    const loadFavorites = async () => {
+    // 즐겨찾기 목록 로드 함수
+    const loadFavorites = useCallback(async () => {
         if (!userId) {
             setFavorites(new Set());
-            setFavoriteCars([]);
+            dispatch({ type: 'LOAD_FAVORITES', payload: [] });
             return;
         }
 
         try {
             const favoritesData = await fetchFavorites(userId);
-            // ID 집합으로 즐겨찾기 저장 (빠른 조회용)
             setFavorites(new Set(favoritesData.map(car => car.id)));
-
-            // 즐겨찾기 차량 전체 데이터 저장
-            setFavoriteCars(favoritesData || []);
+            dispatch({ type: 'LOAD_FAVORITES', payload: favoritesData || [] });
         } catch (err) {
             console.error("즐겨찾기 로드 실패:", err);
         }
-    };
+    }, [userId, setFavorites]);
+
+    // 상태가 변경될 때 URL 업데이트 (단, 초기 로드가 아닐 때만)
+    useEffect(() => {
+        if (!initialLoad && !isHomePage) {
+            updateUrl();
+        }
+    }, [currentPage, activeTab, filters, initialLoad, updateUrl, isHomePage]);
+
+    // 페이지, 필터, 탭 변경 시 데이터 로드
+    useEffect(() => {
+        if (!isHomePage && !initialLoad && activeTab === 'all') {
+            loadCars();
+        }
+    }, [isHomePage, initialLoad, activeTab, currentPage, filters, loadCars]);
+
+    // 초기 데이터 로드
+    useEffect(() => {
+        if (initialLoad && !isHomePage) {
+            loadCars();
+        }
+    }, [initialLoad, isHomePage, loadCars]);
+
+    // 사용자 ID 변경 시 즐겨찾기 로드
+    useEffect(() => {
+        loadFavorites();
+    }, [userId, loadFavorites]);
 
     // 페이지 변경 핸들러
     const handlePageChange = (newPage) => {
-        setCurrentPage(newPage);
-        updateUrl(newPage, activeTab, filters);
+        dispatch({ type: 'SET_PAGE', payload: newPage });
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
     // 탭 변경 핸들러
@@ -132,27 +236,24 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
             return;
         }
 
-        setActiveTab(tab);
-        setCurrentPage(0); // 탭 변경 시 1페이지로 초기화
-        updateUrl(0, tab, filters);
+        dispatch({ type: 'SET_TAB', payload: tab, userId });
     };
 
     // 검색 기능
     const handleSearch = () => {
-        setCurrentPage(0);
-        updateUrl(0, activeTab, filters);
+        // 검색 시 첫 페이지로 이동 (이미 SET_FILTERS에서 처리됨)
         loadCars();
+    };
+
+    // 필터 변경 핸들러
+    const handleFiltersChange = (newFilters) => {
+        dispatch({ type: 'SET_FILTERS', payload: newFilters });
     };
 
     // 필터 초기화
     const handleResetFilters = () => {
-        const resetFilters = {
-            model: "", minPrice: "", maxPrice: "", minMileage: "", maxMileage: "", fuel: "", region: "", year: ""
-        };
-        setFilters(resetFilters);
-        setCurrentPage(0);
-        updateUrl(0, activeTab, resetFilters);
-        setTimeout(() => loadCars(), 0);
+        dispatch({ type: 'RESET_FILTERS' });
+        loadCars();
     };
 
     // 즐겨찾기 토글
@@ -176,8 +277,7 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
                 return newFavorites;
             });
 
-            // 즐겨찾기 차량 데이터 업데이트
-            // 추가 또는 삭제 후 즐겨찾기 목록 새로고침
+            // 즐겨찾기 목록 갱신
             loadFavorites();
         } catch (err) {
             console.error("즐겨찾기 업데이트 실패:", err);
@@ -188,13 +288,9 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
     // 즐겨찾기 탭의 페이지네이션을 위한 데이터 계산
     const getFavoritePageData = () => {
         const pageSize = 21;
-
-        // 전체 즐겨찾기 차량에서 현재 페이지에 해당하는 차량만 계산
         const startIndex = currentPage * pageSize;
         const endIndex = startIndex + pageSize;
         const currentPageItems = favoriteCars.slice(startIndex, endIndex);
-
-        // 전체 페이지 수 계산
         const totalFavoritePages = Math.ceil(favoriteCars.length / pageSize) || 1;
 
         return {
@@ -202,25 +298,6 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
             totalPages: totalFavoritePages
         };
     };
-
-    // 페이지, 필터, 탭 변경 시 데이터 로드
-    useEffect(() => {
-        if (!isHomePage) {
-            if (activeTab === 'all') {
-                loadCars();
-            }
-        }
-    }, [currentPage, activeTab, isHomePage]);
-
-    // 사용자 ID 변경 시 즐겨찾기 로드
-    useEffect(() => {
-        if (userId) {
-            loadFavorites();
-        } else {
-            setFavorites(new Set());
-            setFavoriteCars([]);
-        }
-    }, [userId]);
 
     // 홈페이지 내 간소화된 UI
     if (isHomePage) {
@@ -269,11 +346,6 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
         const favoritePageData = getFavoritePageData();
         displayCars = favoritePageData.items;
         displayTotalPages = favoritePageData.totalPages;
-
-        if (!userId) {
-            setError("즐겨찾기 목록을 보려면 로그인이 필요합니다.");
-            displayCars = [];
-        }
     }
 
     // 일반 CarListPage UI
@@ -294,7 +366,7 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
 
             <CarFilters
                 filters={filters}
-                setFilters={setFilters}
+                setFilters={handleFiltersChange}
                 onSearch={handleSearch}
                 onReset={handleResetFilters}
             />
@@ -352,6 +424,17 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
                 </div>
             ) : (
                 <>
+                    {/* 필터 선택 시 표시할 정보 */}
+                    {filters.model && (
+                        <div className="mb-6 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 p-3 rounded-md">
+                            <p className="text-blue-700 dark:text-blue-300 text-sm">
+                                <span className="font-semibold">{filters.model}</span> 검색 결과
+                                {displayCars.length > 0 && ` (${displayCars.length}개)`}
+                                {currentPage > 0 && ` - 페이지 ${currentPage + 1}/${displayTotalPages}`}
+                            </p>
+                        </div>
+                    )}
+
                     {/* 차량 목록 */}
                     {displayCars.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -381,11 +464,13 @@ const CarListPage = ({ userId, favorites, setFavorites, isHomePage }) => {
                     )}
 
                     {/* 페이지네이션 - 페이지 번호를 1부터 시작하도록 수정 */}
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={displayTotalPages}
-                        onPageChange={handlePageChange}
-                    />
+                    {displayCars.length > 0 && (
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={displayTotalPages}
+                            onPageChange={handlePageChange}
+                        />
+                    )}
                 </>
             )}
         </main>
