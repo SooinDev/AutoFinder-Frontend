@@ -3,6 +3,7 @@ import { useParams, useHistory } from 'react-router-dom';
 import { fetchCarById, toggleFavorite } from '../api/services';
 import CarInfo from '../components/car/CarInfo';
 import PriceAnalysisChart from '../components/analytics/PriceAnalysisChart';
+import SimilarCarsCarousel from '../components/car/SimilarCarsCarousel';
 
 const CarDetailPage = ({ userId, favorites, setFavorites }) => {
     const { id } = useParams();
@@ -76,7 +77,7 @@ const CarDetailPage = ({ userId, favorites, setFavorites }) => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <button
                 onClick={handleGoBack}
                 className="group flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 mb-6"
@@ -180,9 +181,12 @@ const CarDetailPage = ({ userId, favorites, setFavorites }) => {
 
                     {/* 가격 분석 차트 추가 */}
                     <div className="mt-8">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4">시장 가격 분석</h2>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">시장 가격 분석</h2>
                         <PriceAnalysisChart modelName={car.model} />
                     </div>
+
+                    {/* 유사 차량 컴포넌트 추가 */}
+                    <SimilarCarsCarousel carId={car.id} />
                 </div>
             )}
         </div>
