@@ -123,7 +123,8 @@ const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
     };
 
     return (
-        <header className="bg-white dark:bg-gray-800 shadow-sm transition-colors duration-300">
+        <header className="bg-white dark:bg-gray-800 shadow-sm transition-colors duration-300 sticky top-0 z-50">
+
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     <div className="flex items-center">
@@ -146,6 +147,7 @@ const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
                             <Link to="/cars"
                                   className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 text-sm font-medium">
                                 차량 검색
+
                             </Link>
                             <Link to="/analysis"
                                   className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 text-sm font-medium">
@@ -172,15 +174,14 @@ const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
 
                     {/* 로그인 상태에 따른 우측 메뉴 */}
                     <div className="flex items-center">
-                        {/* 다크 모드 토글 버튼 - 여기서 새로운 토글 컴포넌트 사용 */}
-                        <div className="ml-3 relative">
+                        {/* 다크 모드 토글 버튼 - 헤더에 통합 */}
+                        <div className="mr-4">
                             <DarkModeToggle />
                         </div>
-
                         {token ? (
                             <div className="flex items-center">
                                 {/* 사용자 프로필 드롭다운 */}
-                                <div className="ml-3 relative">
+                                <div className="relative">
                                     <div className="flex items-center">
                                         <button
                                             className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
@@ -261,7 +262,9 @@ const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
                                 </Link>
                                 <Link
                                     to="/notifications"
-                                    className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-800 dark:hover:text-white">
+                                    className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-800 dark:hover:text-white"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
                                     알림
                                 </Link>
                             </>
@@ -273,12 +276,6 @@ const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
                         >
                             이용 안내
                         </Link>
-                        <div className="flex items-center pl-3 pr-4 py-2">
-                            <DarkModeToggle />
-                            <span className="ml-2 text-base font-medium text-gray-600 dark:text-gray-300">
-                                {darkMode ? "라이트 모드" : "다크 모드"}
-                            </span>
-                        </div>
                     </div>
                     <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
                         {token ? (
