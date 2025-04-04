@@ -99,3 +99,14 @@ export const register = async (userData) => {
         throw error;
     }
 };
+
+// 유사 차량 목록 조회
+export const fetchSimilarCars = async (carId, limit = 8) => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/cars/${carId}/similar?limit=${limit}`, getAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error(`유사 차량 조회 오류 (ID: ${carId}):`, error);
+        return { content: [] };
+    }
+};
