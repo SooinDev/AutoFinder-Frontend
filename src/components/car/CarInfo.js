@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { formatPrice, formatNumber, formatDate } from "../../utils/formatters";
 
-const CarInfo = ({ car }) => {
+const CarInfo = ({ car, onToggleFavorite, isFavorite, userId }) => {
     const [showFullDescription, setShowFullDescription] = useState(false);
     const [activeTab, setActiveTab] = useState('details');
     const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -36,9 +36,11 @@ const CarInfo = ({ car }) => {
         return `${price.toLocaleString()} 만원`;
     };
 
-    // 이미지 갤러리 처리 (실제 구현에서는 car.imageGallery 배열을 사용)
-    // 임시 데이터로 대체
-    const imageGallery = car.imageUrl ? [car.imageUrl] : [];
+    // 이미지 갤러리 처리
+    // car.imageGallery가 있으면 사용하고, 없으면 imageUrl을 포함한 배열 생성
+    const imageGallery = car.imageGallery && car.imageGallery.length > 0
+        ? car.imageGallery
+        : (car.imageUrl ? [car.imageUrl] : []);
 
     // 탭 렌더링 도우미 함수
     const renderTabContent = () => {
@@ -218,16 +220,23 @@ const CarInfo = ({ car }) => {
         }
     };
 
+    // 찜하기 핸들러
+    const handleToggleFavorite = () => {
+        if (onToggleFavorite) {
+            onToggleFavorite();
+        }
+    };
+
     return (
         <div className="bg-gray-50 dark:bg-gray-900 shadow overflow-hidden rounded-lg transition-colors duration-300">
             {/* 차량 갤러리 섹션 */}
             <div className="relative bg-gray-100 dark:bg-gray-800">
                 <div className="lg:flex">
                     <div className="lg:w-2/3">
-                        {car.imageUrl ? (
+                        {imageGallery.length > 0 ? (
                             <div className="h-80 md:h-96 lg:h-[500px] w-full relative overflow-hidden">
                                 <img
-                                    src={car.imageUrl}
+                                    src={imageGallery[activeImageIndex]}
                                     alt={car.model}
                                     className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
                                 />
@@ -254,7 +263,7 @@ const CarInfo = ({ car }) => {
                                         index === 0 ? 'border-b border-r' :
                                             index === 1 ? 'border-b' :
                                                 index === 2 ? 'border-r' : ''
-                                    } border-gray-200 dark:border-gray-700 p-1`}
+                                    } border-gray-200 dark:border-gray-700 p-1 cursor-pointer`}
                                 >
                                     <img
                                         src={image}
@@ -286,17 +295,19 @@ const CarInfo = ({ car }) => {
                 </div>
 
                 {/* 모바일 썸네일 갤러리 (lg 이하에서만 표시) */}
-                <div className="lg:hidden flex overflow-x-auto space-x-2 p-2 bg-white dark:bg-gray-800">
-                    {imageGallery.map((image, i) => (
-                        <div
-                            key={i}
-                            className={`flex-none w-20 h-20 ${i === activeImageIndex ? 'border-2 border-teal-500' : 'border border-gray-200 dark:border-gray-700'} rounded-md overflow-hidden`}
-                            onClick={() => setActiveImageIndex(i)}
-                        >
-                            <img src={image} alt={`썸네일 ${i+1}`} className="w-full h-full object-cover" />
-                        </div>
-                    ))}
-                </div>
+                {imageGallery.length > 1 && (
+                    <div className="lg:hidden flex overflow-x-auto space-x-2 p-2 bg-white dark:bg-gray-800">
+                        {imageGallery.map((image, i) => (
+                            <div
+                                key={i}
+                                className={`flex-none w-20 h-20 ${i === activeImageIndex ? 'border-2 border-teal-500' : 'border border-gray-200 dark:border-gray-700'} rounded-md overflow-hidden cursor-pointer`}
+                                onClick={() => setActiveImageIndex(i)}
+                            >
+                                <img src={image} alt={`썸네일 ${i+1}`} className="w-full h-full object-cover" />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* 차량 정보 헤더 */}
@@ -362,11 +373,22 @@ const CarInfo = ({ car }) => {
                         </svg>
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">차량이력</span>
                     </button>
-                    <button className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3 transition hover:bg-gray-100 dark:hover:bg-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-teal-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    <button
+                        onClick={handleToggleFavorite}
+                        className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3 transition hover:bg-gray-100 dark:hover:bg-gray-600"
+                        disabled={!userId}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className={`h-6 w-6 ${isFavorite ? 'text-red-500' : 'text-teal-500'} mb-1`}
+                            fill={isFavorite ? "currentColor" : "none"}
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={isFavorite ? "0" : "2"}
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">찜하기</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{isFavorite ? '찜 해제' : '찜하기'}</span>
                     </button>
                 </div>
 
@@ -419,8 +441,16 @@ const CarInfo = ({ car }) => {
                         <button className="flex-1 text-center border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                             시승 신청하기
                         </button>
-                        <button className="flex-1 text-center border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                            찜하기
+                        <button
+                            onClick={handleToggleFavorite}
+                            disabled={!userId}
+                            className={`flex-1 text-center border py-3 px-4 rounded-md text-sm font-medium transition ${
+                                isFavorite
+                                    ? 'border-red-300 text-red-700 dark:border-red-600 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900'
+                                    : 'border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                            }`}
+                        >
+                            {isFavorite ? '찜 해제하기' : '찜하기'}
                         </button>
                     </div>
                 </div>

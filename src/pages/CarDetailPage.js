@@ -147,37 +147,13 @@ const CarDetailPage = ({ userId, favorites, setFavorites }) => {
                 </div>
             ) : (
                 <div>
-                    {/* 로그인 사용자에게 즐겨찾기 버튼 표시 */}
-                    {userId && (
-                        <div className="mb-6 flex justify-end">
-                            <button
-                                onClick={handleToggleFavorite}
-                                className={`inline-flex items-center px-4 py-2 border ${
-                                    isFavorite
-                                        ? 'bg-red-50 text-red-500 border-red-300 hover:bg-red-100'
-                                        : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'
-                                } rounded-md shadow-sm text-sm font-medium`}
-                            >
-                                <svg
-                                    className={`-ml-1 mr-2 h-5 w-5 ${isFavorite ? 'text-red-500' : 'text-gray-400'}`}
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                    fill={isFavorite ? 'currentColor' : 'none'}
-                                    stroke="currentColor"
-                                    strokeWidth={isFavorite ? '0' : '1.5'}
-                                >
-                                    <path
-                                        fillRule="evenodd"
-                                        d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                                        clipRule="evenodd"
-                                    />
-                                </svg>
-                                {isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
-                            </button>
-                        </div>
-                    )}
-
-                    <CarInfo car={car} />
+                    {/* CarInfo 컴포넌트에 필요한 props 전달 */}
+                    <CarInfo
+                        car={car}
+                        isFavorite={isFavorite}
+                        onToggleFavorite={handleToggleFavorite}
+                        userId={userId}
+                    />
 
                     {/* 가격 분석 차트 추가 */}
                     <div className="mt-8">
