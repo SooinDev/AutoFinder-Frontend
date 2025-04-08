@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { addCar, updateCar } from '../../api/services';
 
 const AdminCarForm = ({ car, onSuccess }) => {
     const isEditMode = !!car;
+    const fileInputRef = useRef(null);
 
     // 기본 폼 상태 설정
     const [formData, setFormData] = useState({
@@ -13,7 +14,6 @@ const AdminCarForm = ({ car, onSuccess }) => {
         fuel: '',
         region: '',
         carType: '국산차',
-        url: '',
         imageUrl: '',
         description: '',
         carNumber: '',
@@ -22,6 +22,10 @@ const AdminCarForm = ({ car, onSuccess }) => {
         color: '',
         transmission: ''
     });
+
+    // 이미지 미리보기 상태
+    const [imageFiles, setImageFiles] = useState([]);
+    const [imagePreviews, setImagePreviews] = useState([]);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -47,6 +51,11 @@ const AdminCarForm = ({ car, onSuccess }) => {
                 color: car.color || '',
                 transmission: car.transmission || ''
             });
+
+            // 기존 이미지가 있다면 미리보기에 추가
+            if (car.imageUrl) {
+                setImagePreviews([car.imageUrl]);
+            }
         }
     }, [car]);
 
@@ -70,6 +79,26 @@ const AdminCarForm = ({ car, onSuccess }) => {
         }
     };
 
+    // 이미지 업로드 핸들러
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files);
+        setImageFiles(prevFiles => [...prevFiles, ...files]);
+
+        // 미리보기 생성
+        const newPreviews = files.map(file => URL.createObjectURL(file));
+        setImagePreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
+    };
+
+    // 이미지 미리보기 제거 핸들러
+    const handleRemoveImage = (index) => {
+        setImagePreviews(prevPreviews =>
+            prevPreviews.filter((_, i) => i !== index)
+        );
+        setImageFiles(prevFiles =>
+            prevFiles.filter((_, i) => i !== index)
+        );
+    };
+
     // 폼 제출 핸들러
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -83,6 +112,18 @@ const AdminCarForm = ({ car, onSuccess }) => {
                 mileage: formData.mileage ? parseInt(formData.mileage, 10) : null,
                 price: formData.price ? parseInt(formData.price, 10) : null,
             };
+
+            // 이미지 처리 (실제로는 서버에 업로드하고 URL을 받아와야 함)
+            // 이 예제에서는 첫 번째 이미지를 기본 이미지로 사용
+            if (imageFiles.length > 0) {
+                // 실제 구현에서는 여기에 이미지 업로드 API 호출
+                // const uploadResponse = await uploadImages(imageFiles);
+                // preparedData.imageUrl = uploadResponse.mainImageUrl;
+                // preparedData.imageGallery = uploadResponse.galleryUrls;
+
+                // 임시로 첫 번째 이미지의 미리보기 URL 사용
+                preparedData.imageUrl = imagePreviews[0];
+            }
 
             // 편집/추가 모드에 따라 적절한 API 호출
             if (isEditMode) {
@@ -347,40 +388,84 @@ const AdminCarForm = ({ car, onSuccess }) => {
                         </div>
                     </div>
 
-                    {/* 이미지 및 URL 섹션 */}
+                    {/* 이미지 업로드 섹션 */}
                     <div className="space-y-4 md:col-span-2">
-                        <h3 className="text-md font-medium text-gray-900 dark:text-white">이미지 및 링크</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    이미지 URL
-                                </label>
-                                <input
-                                    type="url"
-                                    id="imageUrl"
-                                    name="imageUrl"
-                                    value={formData.imageUrl}
-                                    onChange={handleChange}
-                                    className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500"
-                                    placeholder="https://example.com/image.jpg"
-                                />
-                            </div>
-
-                            <div>
-                                <label htmlFor="url" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    상세 페이지 URL
-                                </label>
-                                <input
-                                    type="url"
-                                    id="url"
-                                    name="url"
-                                    value={formData.url}
-                                    onChange={handleChange}
-                                    className="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500"
-                                    placeholder="https://example.com/car-details"
-                                />
+                        <h3 className="text-md font-medium text-gray-900 dark:text-white">이미지 업로드</h3>
+                        <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md">
+                            <div className="space-y-1 text-center">
+                                <svg
+                                    className="mx-auto h-12 w-12 text-gray-400"
+                                    stroke="currentColor"
+                                    fill="none"
+                                    viewBox="0 0 48 48"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                        strokeWidth={2}
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                                <div className="flex text-sm text-gray-600 dark:text-gray-400">
+                                    <label
+                                        htmlFor="file-upload"
+                                        className="relative cursor-pointer bg-white dark:bg-gray-700 rounded-md font-medium text-teal-600 dark:text-teal-400 hover:text-teal-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-teal-500"
+                                    >
+                                        <span>이미지 파일 선택</span>
+                                        <input
+                                            id="file-upload"
+                                            name="file-upload"
+                                            type="file"
+                                            className="sr-only"
+                                            ref={fileInputRef}
+                                            onChange={handleImageChange}
+                                            accept="image/*"
+                                            multiple
+                                        />
+                                    </label>
+                                    <p className="pl-1">또는 이미지를 끌어다 놓으세요</p>
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    PNG, JPG, GIF 최대 10MB
+                                </p>
                             </div>
                         </div>
+
+                        {/* 이미지 미리보기 */}
+                        {imagePreviews.length > 0 && (
+                            <div className="mt-4">
+                                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">이미지 미리보기</h4>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {imagePreviews.map((preview, index) => (
+                                        <div key={index} className="relative group">
+                                            <img
+                                                src={preview}
+                                                alt={`미리보기 ${index + 1}`}
+                                                className="h-24 w-full object-cover rounded-md"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveImage(index)}
+                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                            {index === 0 && (
+                                                <span className="absolute bottom-1 left-1 bg-teal-500 text-white text-xs px-2 py-1 rounded">
+                                                    대표 이미지
+                                                </span>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                    첫 번째 이미지가 대표 이미지로 설정됩니다. 드래그하여 순서를 변경할 수 있습니다.
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     {/* 설명 섹션 */}
