@@ -80,7 +80,11 @@ function App() {
                             <CarDetailPage userId={userId} favorites={favorites} setFavorites={setFavorites}/>
                         </Route>
                         <Route path="/login">
-                            <LoginPage setUserId={setUserId} setUsername={setUsername}/>
+                            <LoginPage
+                                setUserId={setUserId}
+                                setUsername={setUsername}
+                                setIsAdmin={setIsAdmin} // setIsAdmin prop 추가
+                            />
                         </Route>
                         <Route path="/register">
                             <RegisterPage/>
