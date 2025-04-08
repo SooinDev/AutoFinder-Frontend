@@ -3,7 +3,8 @@ import { Link, useHistory, useLocation } from 'react-router-dom';
 import { login } from '../api/services';
 import { JwtUtil } from '../utils/JwtUtil';
 
-const LoginPage = ({ setUserId, setUsername }) => {
+// setIsAdmin prop 추가
+const LoginPage = ({ setUserId, setUsername, setIsAdmin }) => {
     const [formData, setFormData] = useState({ username: "", password: "", rememberMe: false });
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +53,11 @@ const LoginPage = ({ setUserId, setUsername }) => {
             // 토큰에서 관리자 확인
             const isAdmin = JwtUtil.extractRole(token)?.toLowerCase() === 'admin';
             console.log("로그인 시 확인한 관리자 여부:", isAdmin); // 디버깅용 로그
+
+            // App 컴포넌트의 isAdmin 상태를 업데이트 (이 부분이 추가됨)
+            if (setIsAdmin) {
+                setIsAdmin(isAdmin);
+            }
 
             setMessage("로그인 성공! 리디렉션 중...");
 
