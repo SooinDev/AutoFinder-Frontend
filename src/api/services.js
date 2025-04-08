@@ -110,3 +110,36 @@ export const fetchSimilarCars = async (carId, limit = 8) => {
         return { content: [] };
     }
 };
+
+// 새 차량 추가
+export const addCar = async (carData) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/cars`, carData, getAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error("차량 추가 오류:", error);
+        throw error;
+    }
+};
+
+// 차량 정보 업데이트
+export const updateCar = async (id, carData) => {
+    try {
+        const response = await axios.put(`${API_BASE_URL}/cars/${id}`, carData, getAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error(`차량 업데이트 오류 (ID: ${id}):`, error);
+        throw error;
+    }
+};
+
+// 차량 삭제
+export const deleteCar = async (id) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/cars/${id}`, getAuthHeaders());
+        return response.data;
+    } catch (error) {
+        console.error(`차량 삭제 오류 (ID: ${id}):`, error);
+        throw error;
+    }
+};

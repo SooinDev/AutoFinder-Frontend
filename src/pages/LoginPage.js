@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import { login } from '../api/services';
+import { JwtUtil } from '../utils/JwtUtil';
 
 const LoginPage = ({ setUserId, setUsername }) => {
     const [formData, setFormData] = useState({ username: "", password: "", rememberMe: false });
     const [message, setMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const history = useHistory();
+    const location = useLocation();
+
+    // location.state에서 from과 메시지 추출
+    const { from, message: locationMessage } = location.state || { from: { pathname: '/' }, message: null };
+
+    // 리디렉션으로 전달된 메시지가 있으면 표시
+    useEffect(() => {
+        if (locationMessage) {
+            setMessage(locationMessage);
+        }
+    }, [locationMessage]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -36,10 +48,18 @@ const LoginPage = ({ setUserId, setUsername }) => {
 
             setUserId(userId);
             setUsername(usernameToStore); // 상태 업데이트
-            setMessage("로그인 성공! 차량 목록으로 이동합니다.");
-            setTimeout(() => history.push("/"), 1000);
+
+            // 토큰에서 관리자 확인
+            const isAdmin = JwtUtil.extractRole(token)?.toLowerCase() === 'admin';
+            console.log("로그인 시 확인한 관리자 여부:", isAdmin); // 디버깅용 로그
+
+            setMessage("로그인 성공! 리디렉션 중...");
+
+            // from에 있던 페이지로 리디렉션
+            setTimeout(() => history.replace(from), 1000);
         } catch (error) {
             setMessage("로그인 실패: 아이디 또는 비밀번호를 확인하세요.");
+            console.error("로그인 오류:", error);
         } finally {
             setIsLoading(false);
         }

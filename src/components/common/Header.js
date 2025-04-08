@@ -1,13 +1,22 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { ThemeContext } from '../../context/ThemeContext';
+import { JwtUtil } from '../../utils/JwtUtil';
 import '../../styles/dark-mode-toggle.css';
 
-const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
+const Header = ({ userId, username, setUserId, setUsername, setFavorites, isAdmin }) => {
     const history = useHistory();
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { darkMode, toggleDarkMode } = useContext(ThemeContext);
+
+    // 사용자 이름의 첫 글자 가져오기 (프로필 아이콘에 표시)
+    const getInitial = () => {
+        if (username && typeof username === 'string' && username.length > 0) {
+            return username.charAt(0).toUpperCase();
+        }
+        return 'U'; // 기본값
+    };
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -24,14 +33,6 @@ const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
         setUserId(null);
         setUsername(null); // username 상태 초기화
         history.push("/");
-    };
-
-    // 사용자 이름의 첫 글자 가져오기 (프로필 아이콘에 표시)
-    const getInitial = () => {
-        if (username && typeof username === 'string' && username.length > 0) {
-            return username.charAt(0).toUpperCase();
-        }
-        return 'U'; // 기본값
     };
 
     // 다크모드 토글 버튼 컴포넌트
@@ -165,6 +166,19 @@ const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
                                     </Link>
                                 </>
                             )}
+                            {/* 관리자 메뉴 추가 */}
+                            {isAdmin && (
+                                <Link to="/admin"
+                                      className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 text-sm font-medium">
+                                    <span className="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        관리자
+                                    </span>
+                                </Link>
+                            )}
                             <Link to="/help"
                                   className="text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white inline-flex items-center px-1 pt-1 text-sm font-medium">
                                 이용 안내
@@ -193,6 +207,11 @@ const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
                                             </div>
                                             <span className="ml-2 text-gray-700 dark:text-gray-300 hidden md:block">
                                                 {username || "사용자"}님
+                                                {isAdmin && (
+                                                    <span className="ml-1 text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full">
+                                                        관리자
+                                                    </span>
+                                                )}
                                             </span>
                                         </button>
                                         <button
@@ -269,6 +288,25 @@ const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
                                 </Link>
                             </>
                         )}
+                        {/* 모바일 관리자 메뉴 추가 */}
+                        {isAdmin && (
+                            <>
+                                <Link
+                                    to="/admin"
+                                    className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-800 dark:hover:text-white"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    관리자 대시보드
+                                </Link>
+                                <Link
+                                    to="/admin/cars"
+                                    className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-800 dark:hover:text-white"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                >
+                                    차량 관리
+                                </Link>
+                            </>
+                        )}
                         <Link
                             to="/help"
                             className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:text-gray-800 dark:hover:text-white"
@@ -287,7 +325,14 @@ const Header = ({ userId, username, setUserId, setUsername, setFavorites }) => {
                                         </div>
                                     </div>
                                     <div className="ml-3">
-                                        <div className="text-base font-medium text-gray-800 dark:text-white">{username || "사용자"}</div>
+                                        <div className="text-base font-medium text-gray-800 dark:text-white">
+                                            {username || "사용자"}
+                                            {isAdmin && (
+                                                <span className="ml-1 text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full">
+                                                    관리자
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="mt-3 space-y-1">
