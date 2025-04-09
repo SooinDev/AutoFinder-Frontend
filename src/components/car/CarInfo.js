@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { formatPrice, formatNumber, formatDate } from "../../utils/formatters";
 
 const CarInfo = ({ car }) => {
@@ -6,14 +6,18 @@ const CarInfo = ({ car }) => {
     const [activeTab, setActiveTab] = useState('details');
     const [activeImageIndex, setActiveImageIndex] = useState(0);
 
+    // 이미지 갤러리 처리 로직
+    useEffect(() => {
+        console.log("차량 데이터:", car);
+        console.log("이미지 URL:", car.imageUrl);
+        console.log("이미지 갤러리:", car.imageGallery);
+    }, [car]);
+
     // 차량 설명 처리
     const carDescription = car.description || "차량 설명이 없습니다.";
     const truncatedDescription = carDescription.length > 150
         ? carDescription.substring(0, 150) + "..."
         : carDescription;
-
-    // 차량 연식에서 년식 제거 (숫자만 표시)
-    const yearNumber = car.year ? car.year.replace(/년식|식$/g, "").trim() : "";
 
     // 가격 계산 함수 (월 납입금 추정)
     const calculateMonthlyPayment = (price, downPayment = 0.3, years = 3, interestRate = 0.039) => {
@@ -36,9 +40,13 @@ const CarInfo = ({ car }) => {
         return `${price.toLocaleString()} 만원`;
     };
 
-    // 이미지 갤러리 처리 (실제 구현에서는 car.imageGallery 배열을 사용)
-    // 임시 데이터로 대체
-    const imageGallery = car.imageUrl ? [car.imageUrl] : [];
+    // 이미지 갤러리 처리
+    let imageGallery = [];
+    if (car.imageGallery && Array.isArray(car.imageGallery) && car.imageGallery.length > 0) {
+        imageGallery = car.imageGallery;
+    } else if (car.imageUrl) {
+        imageGallery = [car.imageUrl];
+    }
 
     // 탭 렌더링 도우미 함수
     const renderTabContent = () => {
@@ -224,10 +232,10 @@ const CarInfo = ({ car }) => {
             <div className="relative bg-gray-100 dark:bg-gray-800">
                 <div className="lg:flex">
                     <div className="lg:w-2/3">
-                        {car.imageUrl ? (
+                        {imageGallery.length > 0 ? (
                             <div className="h-80 md:h-96 lg:h-[500px] w-full relative overflow-hidden">
                                 <img
-                                    src={car.imageUrl}
+                                    src={imageGallery[activeImageIndex]}
                                     alt={car.model}
                                     className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
                                 />
@@ -286,17 +294,19 @@ const CarInfo = ({ car }) => {
                 </div>
 
                 {/* 모바일 썸네일 갤러리 (lg 이하에서만 표시) */}
-                <div className="lg:hidden flex overflow-x-auto space-x-2 p-2 bg-white dark:bg-gray-800">
-                    {imageGallery.map((image, i) => (
-                        <div
-                            key={i}
-                            className={`flex-none w-20 h-20 ${i === activeImageIndex ? 'border-2 border-teal-500' : 'border border-gray-200 dark:border-gray-700'} rounded-md overflow-hidden`}
-                            onClick={() => setActiveImageIndex(i)}
-                        >
-                            <img src={image} alt={`썸네일 ${i+1}`} className="w-full h-full object-cover" />
-                        </div>
-                    ))}
-                </div>
+                {imageGallery.length > 1 && (
+                    <div className="lg:hidden flex overflow-x-auto space-x-2 p-2 bg-white dark:bg-gray-800">
+                        {imageGallery.map((image, i) => (
+                            <div
+                                key={i}
+                                className={`flex-none w-20 h-20 ${i === activeImageIndex ? 'border-2 border-teal-500' : 'border border-gray-200 dark:border-gray-700'} rounded-md overflow-hidden`}
+                                onClick={() => setActiveImageIndex(i)}
+                            >
+                                <img src={image} alt={`썸네일 ${i+1}`} className="w-full h-full object-cover" />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* 차량 정보 헤더 */}
@@ -344,24 +354,6 @@ const CarInfo = ({ car }) => {
 
                 {/* 빠른 액션 버튼 */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-                    <button className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3 transition hover:bg-gray-100 dark:hover:bg-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-teal-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                        </svg>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">문의하기</span>
-                    </button>
-                    <button className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3 transition hover:bg-gray-100 dark:hover:bg-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-teal-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">시승예약</span>
-                    </button>
-                    <button className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3 transition hover:bg-gray-100 dark:hover:bg-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-teal-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">차량이력</span>
-                    </button>
                     <button className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3 transition hover:bg-gray-100 dark:hover:bg-gray-600">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-teal-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
