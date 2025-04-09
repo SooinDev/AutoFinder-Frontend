@@ -20,8 +20,26 @@ const CarDetailPage = ({ userId, favorites, setFavorites }) => {
             setError(null);
 
             try {
+                console.log("차량 상세 정보 로드 시작, ID:", id);
                 const data = await fetchCarById(id);
+                console.log("서버로부터 받은 차량 데이터:", data);
+
                 if (data) {
+                    // 이미지 갤러리 데이터 확인
+                    console.log("받은 이미지 URL:", data.imageUrl);
+                    console.log("받은 이미지 갤러리:", data.imageGallery);
+
+                    // imageGallery가 없거나 비어있으면 imageUrl을 사용하여 갤러리 생성
+                    if (!data.imageGallery || !Array.isArray(data.imageGallery) || data.imageGallery.length === 0) {
+                        if (data.imageUrl) {
+                            console.log("이미지 갤러리 없음, imageUrl로 갤러리 생성");
+                            data.imageGallery = [data.imageUrl];
+                        } else {
+                            console.log("이미지 URL과 갤러리 모두 없음");
+                            data.imageGallery = [];
+                        }
+                    }
+
                     setCar(data);
                     // 즐겨찾기 여부 확인
                     if (favorites && favorites.has && favorites.has(parseInt(id, 10))) {
@@ -31,8 +49,8 @@ const CarDetailPage = ({ userId, favorites, setFavorites }) => {
                     setError("차량 정보를 찾을 수 없습니다.");
                 }
             } catch (err) {
-                setError("차량 정보를 불러오는 중 오류가 발생했습니다.");
                 console.error("차량 정보 조회 오류:", err);
+                setError("차량 정보를 불러오는 중 오류가 발생했습니다.");
             } finally {
                 setIsLoading(false);
             }
@@ -147,37 +165,13 @@ const CarDetailPage = ({ userId, favorites, setFavorites }) => {
                 </div>
             ) : (
                 <div>
-                    {/* 로그인 사용자에게 즐겨찾기 버튼 표시 */}
-                    {userId && (
-                        <div className="mb-6 flex justify-end">
-                            <button
-                                onClick={handleToggleFavorite}
-                                className={`inline-flex items-center px-4 py-2 border ${
-                                    isFavorite
-                                        ? 'bg-red-50 text-red-500 border-red-300 hover:bg-red-100'
-                                        : 'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100'
-                                } rounded-md shadow-sm text-sm font-medium`}
-                            >
-                                <svg
-                                    className={`-ml-1 mr-2 h-5 w-5 ${isFavorite ? 'text-red-500' : 'text-gray-400'}`}
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                    fill={isFavorite ? 'currentColor' : 'none'}
-                                    stroke="currentColor"
-                                    strokeWidth={isFavorite ? '0' : '1.5'}
-                                >
-                                    <path
-                                        fillRule="evenodd"
-                                        d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-                                        clipRule="evenodd"
-                                    />
-                                </svg>
-                                {isFavorite ? '즐겨찾기 해제' : '즐겨찾기 추가'}
-                            </button>
-                        </div>
-                    )}
-
-                    <CarInfo car={car} />
+                    {/* CarInfo 컴포넌트에 필요한 props 전달 */}
+                    <CarInfo
+                        car={car}
+                        isFavorite={isFavorite}
+                        onToggleFavorite={handleToggleFavorite}
+                        userId={userId}
+                    />
 
                     {/* 가격 분석 차트 추가 */}
                     <div className="mt-8">
