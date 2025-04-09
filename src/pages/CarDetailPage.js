@@ -20,8 +20,26 @@ const CarDetailPage = ({ userId, favorites, setFavorites }) => {
             setError(null);
 
             try {
+                console.log("차량 상세 정보 로드 시작, ID:", id);
                 const data = await fetchCarById(id);
+                console.log("서버로부터 받은 차량 데이터:", data);
+
                 if (data) {
+                    // 이미지 갤러리 데이터 확인
+                    console.log("받은 이미지 URL:", data.imageUrl);
+                    console.log("받은 이미지 갤러리:", data.imageGallery);
+
+                    // imageGallery가 없거나 비어있으면 imageUrl을 사용하여 갤러리 생성
+                    if (!data.imageGallery || !Array.isArray(data.imageGallery) || data.imageGallery.length === 0) {
+                        if (data.imageUrl) {
+                            console.log("이미지 갤러리 없음, imageUrl로 갤러리 생성");
+                            data.imageGallery = [data.imageUrl];
+                        } else {
+                            console.log("이미지 URL과 갤러리 모두 없음");
+                            data.imageGallery = [];
+                        }
+                    }
+
                     setCar(data);
                     // 즐겨찾기 여부 확인
                     if (favorites && favorites.has && favorites.has(parseInt(id, 10))) {
@@ -31,8 +49,8 @@ const CarDetailPage = ({ userId, favorites, setFavorites }) => {
                     setError("차량 정보를 찾을 수 없습니다.");
                 }
             } catch (err) {
-                setError("차량 정보를 불러오는 중 오류가 발생했습니다.");
                 console.error("차량 정보 조회 오류:", err);
+                setError("차량 정보를 불러오는 중 오류가 발생했습니다.");
             } finally {
                 setIsLoading(false);
             }

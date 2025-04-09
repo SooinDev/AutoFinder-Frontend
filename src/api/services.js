@@ -8,8 +8,7 @@ const getAuthHeaders = () => {
     return {
         headers: {
             "Authorization": token ? `Bearer ${token}` : undefined
-        },
-        withCredentials: true
+        }
     };
 };
 
@@ -37,11 +36,19 @@ export const fetchCars = async (filters = {}, page = 0, size = 21) => {
 // 차량 상세 정보 조회
 export const fetchCarById = async (id) => {
     try {
+        console.log(`차량 상세 정보 API 호출, ID: ${id}`);
         const response = await axios.get(`${API_BASE_URL}/cars/${id}`, getAuthHeaders());
+        console.log("서버 응답 (차량 상세):", response.data);
+
+        // 이미지 갤러리 확인 및 처리
+        if (response.data && !response.data.imageGallery && response.data.imageUrl) {
+            response.data.imageGallery = [response.data.imageUrl];
+        }
+
         return response.data;
     } catch (error) {
         console.error(`차량 ID(${id}) 조회 오류:`, error);
-        return null;
+        throw error;
     }
 };
 
@@ -65,13 +72,22 @@ export const toggleFavorite = async (carId, userId, isCurrentlyFavorite) => {
     }
 
     try {
-        const method = isCurrentlyFavorite ? "DELETE" : "POST";
-        const response = await axios({
-            method,
-            url: `${API_BASE_URL}/favorites/${carId}?userId=${userId}`,
-            ...getAuthHeaders()
-        });
-        return response.data;
+        if (isCurrentlyFavorite) {
+            // 즐겨찾기 제거
+            const response = await axios.delete(
+                `${API_BASE_URL}/favorites/${carId}?userId=${userId}`,
+                getAuthHeaders()
+            );
+            return response.data;
+        } else {
+            // 즐겨찾기 추가
+            const response = await axios.post(
+                `${API_BASE_URL}/favorites/${carId}?userId=${userId}`,
+                null,
+                getAuthHeaders()
+            );
+            return response.data;
+        }
     } catch (error) {
         console.error("즐겨찾기 업데이트 오류:", error);
         throw error;
@@ -114,19 +130,46 @@ export const fetchSimilarCars = async (carId, limit = 8) => {
 // 새 차량 추가
 export const addCar = async (carData) => {
     try {
-        // 이미지 파일 업로드 처리
-        if (carData.imageFiles && carData.imageFiles.length > 0) {
-            const imageUrls = await uploadImages(carData.imageFiles);
-
-            // 메인 이미지와 갤러리 이미지 설정
-            carData.imageUrl = imageUrls.mainImageUrl;
-            carData.imageGallery = imageUrls.galleryUrls;
-
-            // 파일 객체 제거 (서버에 전송하지 않음)
-            delete carData.imageFiles;
+        // 날짜 형식 조정
+        if (carData.registrationDate) {
+            // ISO 형식으로 변환
+            carData.registrationDate = new Date(carData.registrationDate).toISOString().split('T')[0];
         }
 
-        const response = await axios.post(`${API_BASE_URL}/cars`, carData, getAuthHeaders());
+        console.log("차량 추가 시작:", carData);
+
+        // 이미지 처리
+        if (carData.imageGallery && carData.imageGallery.length > 0) {
+            carData.imageUrl = carData.imageGallery[0];  // 첫 번째 이미지를 메인으로 설정
+
+            // carData에서 mainImageIndex가 있으면 해당 이미지를 메인으로 설정
+            if (carData.mainImageIndex !== undefined &&
+                carData.mainImageIndex < carData.imageGallery.length) {
+                carData.imageUrl = carData.imageGallery[carData.mainImageIndex];
+            }
+        }
+
+        // DTO 형식에 맞게 변환
+        const carCreateDTO = {
+            carType: carData.carType || "국산차",
+            model: carData.model,
+            year: carData.year,
+            mileage: carData.mileage ? Number(carData.mileage) : null,
+            price: carData.price ? Number(carData.price) : null,
+            fuel: carData.fuel,
+            region: carData.region,
+            description: carData.description,
+            carNumber: carData.carNumber,
+            registrationDate: carData.registrationDate,
+            carClass: carData.carClass,
+            color: carData.color,
+            transmission: carData.transmission,
+            imageUrls: carData.imageGallery || [],
+            mainImageIndex: carData.mainImageIndex || 0
+        };
+
+        const response = await axios.post(`${API_BASE_URL}/cars`, carCreateDTO, getAuthHeaders());
+        console.log("서버 응답 (차량 추가):", response.data);
         return response.data;
     } catch (error) {
         console.error("차량 추가 오류:", error);
@@ -137,32 +180,52 @@ export const addCar = async (carData) => {
 // 차량 정보 업데이트
 export const updateCar = async (id, carData) => {
     try {
-        // 새로운 이미지 파일 업로드 처리
-        if (carData.imageFiles && carData.imageFiles.length > 0) {
-            const imageUrls = await uploadImages(carData.imageFiles);
+        console.log(`차량 업데이트 시작, ID: ${id}`, carData);
 
-            // 메인 이미지와 갤러리 이미지 설정
-            carData.imageUrl = imageUrls.mainImageUrl;
-
-            // 갤러리 이미지 업데이트 (기존 이미지 + 새 이미지)
-            if (carData.imageGallery && Array.isArray(carData.imageGallery)) {
-                carData.imageGallery = [...carData.imageGallery, ...imageUrls.galleryUrls.slice(1)];
-            } else {
-                carData.imageGallery = imageUrls.galleryUrls;
-            }
-
-            // 파일 객체 제거 (서버에 전송하지 않음)
-            delete carData.imageFiles;
+        // 날짜 형식 조정
+        if (carData.registrationDate) {
+            // ISO 형식으로 변환
+            carData.registrationDate = new Date(carData.registrationDate).toISOString().split('T')[0];
         }
 
-        const response = await axios.put(`${API_BASE_URL}/cars/${id}`, carData, getAuthHeaders());
+        // 이미지 처리
+        if (carData.imageGallery && carData.imageGallery.length > 0) {
+            carData.imageUrl = carData.imageGallery[0];  // 첫 번째 이미지를 메인으로 설정
+
+            // carData에서 mainImageIndex가 있으면 해당 이미지를 메인으로 설정
+            if (carData.mainImageIndex !== undefined &&
+                carData.mainImageIndex < carData.imageGallery.length) {
+                carData.imageUrl = carData.imageGallery[carData.mainImageIndex];
+            }
+        }
+
+        // DTO 형식에 맞게 변환
+        const carUpdateDTO = {
+            carType: carData.carType || "국산차",
+            model: carData.model,
+            year: carData.year,
+            mileage: carData.mileage ? Number(carData.mileage) : null,
+            price: carData.price ? Number(carData.price) : null,
+            fuel: carData.fuel,
+            region: carData.region,
+            description: carData.description,
+            carNumber: carData.carNumber,
+            registrationDate: carData.registrationDate,
+            carClass: carData.carClass,
+            color: carData.color,
+            transmission: carData.transmission,
+            imageUrls: carData.imageGallery || [],
+            mainImageIndex: carData.mainImageIndex || 0
+        };
+
+        const response = await axios.put(`${API_BASE_URL}/cars/${id}`, carUpdateDTO, getAuthHeaders());
+        console.log("서버 응답 (차량 업데이트):", response.data);
         return response.data;
     } catch (error) {
         console.error(`차량 업데이트 오류 (ID: ${id}):`, error);
         throw error;
     }
 };
-
 
 // 차량 삭제
 export const deleteCar = async (id) => {
@@ -175,50 +238,28 @@ export const deleteCar = async (id) => {
     }
 };
 
-// services.js에 추가할 이미지 업로드 관련 함수
-
-// 이미지 파일 업로드 함수
+// 이미지 업로드 처리 (Mock 버전)
 export const uploadImages = async (files) => {
     if (!files || files.length === 0) return { mainImageUrl: null, galleryUrls: [] };
 
     try {
-        // 실제 구현에서는 FormData를 사용하여 서버에 파일 업로드
-        const formData = new FormData();
+        console.log(`이미지 업로드: ${files.length}개 파일`);
 
-        // 각 파일을 formData에 추가
-        files.forEach((file, index) => {
-            formData.append('images', file);
+        // 테스트 환경 - 모의 응답 생성
+        const mockUrls = files.map((file, index) => {
+            const url = URL.createObjectURL(file);
+            console.log(`파일 ${index + 1} 미리보기 URL: ${url}`);
+            return url;
         });
 
-        const response = await axios.post(`${API_BASE_URL}/upload/images`, formData, {
-            ...getAuthHeaders(),
-            headers: {
-                ...getAuthHeaders().headers,
-                'Content-Type': 'multipart/form-data'
-            }
-        });
+        console.log("생성된 이미지 URL:", mockUrls);
 
-        // 서버로부터 업로드된 이미지 URL 배열 반환
         return {
-            mainImageUrl: response.data.urls[0], // 첫 번째 이미지를 메인 이미지로 사용
-            galleryUrls: response.data.urls     // 모든 이미지 URL 배열
+            mainImageUrl: mockUrls[0],  // 첫 번째 이미지를 메인으로
+            galleryUrls: mockUrls       // 모든 이미지 URL
         };
     } catch (error) {
         console.error("이미지 업로드 오류:", error);
-        throw error;
-    }
-};
-
-// 이미지 삭제 함수
-export const deleteImage = async (imageUrl) => {
-    try {
-        // URL에서 파일명 추출 (실제 구현에서는 서버에 맞게 수정)
-        const filename = imageUrl.split('/').pop();
-
-        const response = await axios.delete(`${API_BASE_URL}/upload/images/${filename}`, getAuthHeaders());
-        return response.data;
-    } catch (error) {
-        console.error(`이미지 삭제 오류 (${imageUrl}):`, error);
         throw error;
     }
 };

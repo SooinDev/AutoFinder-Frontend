@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { addCar, updateCar } from '../../api/services';
+import { addCar, updateCar, uploadImages } from '../../api/services';
 
 const AdminCarForm = ({ car, onSuccess }) => {
     const isEditMode = !!car;
@@ -14,18 +14,20 @@ const AdminCarForm = ({ car, onSuccess }) => {
         fuel: '',
         region: '',
         carType: '국산차',
-        imageUrl: '',
         description: '',
         carNumber: '',
         registrationDate: '',
         carClass: '',
         color: '',
-        transmission: ''
+        transmission: '',
+        imageUrls: [],
+        mainImageIndex: 0
     });
 
     // 이미지 미리보기 상태
     const [imageFiles, setImageFiles] = useState([]);
     const [imagePreviews, setImagePreviews] = useState([]);
+    const [mainImageIndex, setMainImageIndex] = useState(0);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState(null);
@@ -40,6 +42,14 @@ const AdminCarForm = ({ car, onSuccess }) => {
                 formattedRegistrationDate = date.toISOString().split('T')[0];
             }
 
+            // 이미지 갤러리 처리
+            let imageGallery = [];
+            if (car.imageGallery && Array.isArray(car.imageGallery) && car.imageGallery.length > 0) {
+                imageGallery = car.imageGallery;
+            } else if (car.imageUrl) {
+                imageGallery = [car.imageUrl];
+            }
+
             setFormData({
                 ...car,
                 registrationDate: formattedRegistrationDate,
@@ -49,13 +59,12 @@ const AdminCarForm = ({ car, onSuccess }) => {
                 carNumber: car.carNumber || '',
                 carClass: car.carClass || '',
                 color: car.color || '',
-                transmission: car.transmission || ''
+                transmission: car.transmission || '',
+                imageUrls: imageGallery
             });
 
-            // 기존 이미지가 있다면 미리보기에 추가
-            if (car.imageUrl) {
-                setImagePreviews([car.imageUrl]);
-            }
+            // 이미지 미리보기 설정
+            setImagePreviews(imageGallery);
         }
     }, [car]);
 
@@ -82,6 +91,8 @@ const AdminCarForm = ({ car, onSuccess }) => {
     // 이미지 업로드 핸들러
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
         setImageFiles(prevFiles => [...prevFiles, ...files]);
 
         // 미리보기 생성
@@ -89,14 +100,59 @@ const AdminCarForm = ({ car, onSuccess }) => {
         setImagePreviews(prevPreviews => [...prevPreviews, ...newPreviews]);
     };
 
+    // 이미지 순서 변경 핸들러
+    const handleReorderImages = (dragIndex, hoverIndex) => {
+        const reorderedPreviews = [...imagePreviews];
+        const draggedItem = reorderedPreviews[dragIndex];
+        reorderedPreviews.splice(dragIndex, 1);
+        reorderedPreviews.splice(hoverIndex, 0, draggedItem);
+        setImagePreviews(reorderedPreviews);
+
+        // 이미지 파일도 함께 순서 변경
+        if (imageFiles.length > 0) {
+            const reorderedFiles = [...imageFiles];
+            if (dragIndex < reorderedFiles.length && hoverIndex < reorderedFiles.length) {
+                const draggedFile = reorderedFiles[dragIndex];
+                reorderedFiles.splice(dragIndex, 1);
+                reorderedFiles.splice(hoverIndex, 0, draggedFile);
+                setImageFiles(reorderedFiles);
+            }
+        }
+    };
+
+    // 대표 이미지 설정 핸들러
+    const handleSetMainImage = (index) => {
+        setMainImageIndex(index);
+        setFormData(prev => ({
+            ...prev,
+            mainImageIndex: index
+        }));
+    };
+
     // 이미지 미리보기 제거 핸들러
     const handleRemoveImage = (index) => {
-        setImagePreviews(prevPreviews =>
-            prevPreviews.filter((_, i) => i !== index)
-        );
-        setImageFiles(prevFiles =>
-            prevFiles.filter((_, i) => i !== index)
-        );
+        // 이미지 미리보기 제거
+        setImagePreviews(prev => prev.filter((_, i) => i !== index));
+
+        // 이미지 파일 제거 (새로 업로드한 파일이 있는 경우)
+        if (imageFiles.length > index) {
+            setImageFiles(prev => prev.filter((_, i) => i !== index));
+        }
+
+        // 대표 이미지 인덱스 조정
+        if (mainImageIndex === index) {
+            setMainImageIndex(0);
+            setFormData(prev => ({
+                ...prev,
+                mainImageIndex: 0
+            }));
+        } else if (mainImageIndex > index) {
+            setMainImageIndex(mainImageIndex - 1);
+            setFormData(prev => ({
+                ...prev,
+                mainImageIndex: prev.mainImageIndex - 1
+            }));
+        }
     };
 
     // 폼 제출 핸들러
@@ -106,24 +162,37 @@ const AdminCarForm = ({ car, onSuccess }) => {
         setError(null);
 
         try {
+            // 이미지 파일 처리
+            if (imageFiles.length > 0) {
+                const imageResults = await uploadImages(imageFiles);
+
+                // 이미지 URL 설정
+                const updatedPreviews = [...imagePreviews];
+
+                // 새 이미지 URL로 교체 (기존 URL은 유지)
+                imageResults.galleryUrls.forEach((url, index) => {
+                    const fileIndex = imagePreviews.length - imageFiles.length + index;
+                    if (fileIndex >= 0 && fileIndex < updatedPreviews.length) {
+                        updatedPreviews[fileIndex] = url;
+                    }
+                });
+
+                // 폼 데이터에 이미지 URL 업데이트
+                setFormData(prev => ({
+                    ...prev,
+                    imageUrls: updatedPreviews,
+                    mainImageIndex: mainImageIndex
+                }));
+            }
+
             // 데이터 변환 (문자열 → 숫자)
             const preparedData = {
                 ...formData,
                 mileage: formData.mileage ? parseInt(formData.mileage, 10) : null,
                 price: formData.price ? parseInt(formData.price, 10) : null,
+                imageGallery: imagePreviews,
+                mainImageIndex: mainImageIndex
             };
-
-            // 이미지 처리 (실제로는 서버에 업로드하고 URL을 받아와야 함)
-            // 이 예제에서는 첫 번째 이미지를 기본 이미지로 사용
-            if (imageFiles.length > 0) {
-                // 실제 구현에서는 여기에 이미지 업로드 API 호출
-                // const uploadResponse = await uploadImages(imageFiles);
-                // preparedData.imageUrl = uploadResponse.mainImageUrl;
-                // preparedData.imageGallery = uploadResponse.galleryUrls;
-
-                // 임시로 첫 번째 이미지의 미리보기 URL 사용
-                preparedData.imageUrl = imagePreviews[0];
-            }
 
             // 편집/추가 모드에 따라 적절한 API 호출
             if (isEditMode) {
@@ -442,18 +511,31 @@ const AdminCarForm = ({ car, onSuccess }) => {
                                             <img
                                                 src={preview}
                                                 alt={`미리보기 ${index + 1}`}
-                                                className="h-24 w-full object-cover rounded-md"
+                                                className={`h-24 w-full object-cover rounded-md ${index === mainImageIndex ? 'ring-2 ring-teal-500' : ''}`}
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => handleRemoveImage(index)}
-                                                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            >
-                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
-                                            {index === 0 && (
+                                            <div className="absolute top-1 right-1 space-x-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleSetMainImage(index)}
+                                                    className={`bg-teal-500 text-white rounded-full p-1 ${index === mainImageIndex ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity`}
+                                                    title="대표 이미지로 설정"
+                                                >
+                                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleRemoveImage(index)}
+                                                    className="bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    title="삭제"
+                                                >
+                                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            {index === mainImageIndex && (
                                                 <span className="absolute bottom-1 left-1 bg-teal-500 text-white text-xs px-2 py-1 rounded">
                                                     대표 이미지
                                                 </span>
@@ -462,7 +544,7 @@ const AdminCarForm = ({ car, onSuccess }) => {
                                     ))}
                                 </div>
                                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                    첫 번째 이미지가 대표 이미지로 설정됩니다. 드래그하여 순서를 변경할 수 있습니다.
+                                    첫 번째 이미지가 대표 이미지로 설정됩니다. 클릭하여 대표 이미지를 변경할 수 있습니다.
                                 </p>
                             </div>
                         )}
