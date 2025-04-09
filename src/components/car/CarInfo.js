@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import { formatPrice, formatNumber, formatDate } from "../../utils/formatters";
 
-const CarInfo = ({ car }) => {
+const CarInfo = ({ car, isFavorite, onToggleFavorite }) => {
     const [showFullDescription, setShowFullDescription] = useState(false);
     const [activeTab, setActiveTab] = useState('details');
     const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -47,6 +47,20 @@ const CarInfo = ({ car }) => {
     } else if (car.imageUrl) {
         imageGallery = [car.imageUrl];
     }
+
+    // 다음 이미지로 이동
+    const goToNextImage = () => {
+        if (imageGallery.length > 1) {
+            setActiveImageIndex((prevIndex) => (prevIndex + 1) % imageGallery.length);
+        }
+    };
+
+    // 이전 이미지로 이동
+    const goToPrevImage = () => {
+        if (imageGallery.length > 1) {
+            setActiveImageIndex((prevIndex) => (prevIndex - 1 + imageGallery.length) % imageGallery.length);
+        }
+    };
 
     // 탭 렌더링 도우미 함수
     const renderTabContent = () => {
@@ -231,7 +245,7 @@ const CarInfo = ({ car }) => {
             {/* 차량 갤러리 섹션 */}
             <div className="relative bg-gray-100 dark:bg-gray-800">
                 <div className="lg:flex">
-                    <div className="lg:w-2/3">
+                    <div className="lg:w-2/3 relative">
                         {imageGallery.length > 0 ? (
                             <div className="h-80 md:h-96 lg:h-[500px] w-full relative overflow-hidden">
                                 <img
@@ -243,6 +257,28 @@ const CarInfo = ({ car }) => {
                                     <div className="absolute bottom-4 right-4 bg-black bg-opacity-60 text-white text-xs px-3 py-1 rounded-full">
                                         {activeImageIndex + 1}/{imageGallery.length}
                                     </div>
+                                )}
+
+                                {/* 이미지 네비게이션 버튼 추가 */}
+                                {imageGallery.length > 1 && (
+                                    <>
+                                        <button
+                                            onClick={goToPrevImage}
+                                            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            onClick={goToNextImage}
+                                            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </button>
+                                    </>
                                 )}
                             </div>
                         ) : (
@@ -354,11 +390,28 @@ const CarInfo = ({ car }) => {
 
                 {/* 빠른 액션 버튼 */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-                    <button className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3 transition hover:bg-gray-100 dark:hover:bg-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-teal-500 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    <button
+                        onClick={onToggleFavorite}
+                        className="flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-700 rounded-lg p-3 transition hover:bg-gray-100 dark:hover:bg-gray-600"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6 mb-1"
+                            fill={isFavorite ? "currentColor" : "none"}
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={isFavorite ? "0" : "2"}
+                            color={isFavorite ? "#EF4444" : "currentColor"}
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                            />
                         </svg>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">찜하기</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {isFavorite ? "찜 해제하기" : "찜하기"}
+                        </span>
                     </button>
                 </div>
 
@@ -411,8 +464,11 @@ const CarInfo = ({ car }) => {
                         <button className="flex-1 text-center border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                             시승 신청하기
                         </button>
-                        <button className="flex-1 text-center border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                            찜하기
+                        <button
+                            onClick={onToggleFavorite}
+                            className="flex-1 text-center border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                        >
+                            {isFavorite ? "찜 해제하기" : "찜하기"}
                         </button>
                     </div>
                 </div>
