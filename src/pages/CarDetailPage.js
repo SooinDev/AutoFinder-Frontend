@@ -170,7 +170,6 @@ const CarDetailPage = ({ userId, favorites, setFavorites }) => {
                         car={car}
                         isFavorite={isFavorite}
                         onToggleFavorite={handleToggleFavorite}
-                        userId={userId}
                     />
 
                     {/* 가격 분석 차트 추가 */}

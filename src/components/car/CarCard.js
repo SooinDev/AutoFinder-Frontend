@@ -2,17 +2,30 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const CarCard = ({ car, isFavorite, onToggleFavorite }) => {
+    // 이미지 URL 확인 및 기본값 설정
+    const imageUrl = car.imageUrl || (car.imageGallery && car.imageGallery.length > 0 ? car.imageGallery[0] : null);
+
     return (
         <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
-            {car.imageUrl ? (
-                <div className="w-full h-48 bg-gray-200 dark:bg-gray-700">
-                    <img src={car.imageUrl} alt={car.model} className="w-full h-full object-cover" />
-                </div>
-            ) : (
-                <div className="w-full h-48 bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500">
-                    이미지 없음
-                </div>
-            )}
+            <div className="w-full h-48 bg-gray-200 dark:bg-gray-700 relative">
+                {imageUrl ? (
+                    <img
+                        src={imageUrl}
+                        alt={car.model}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                            console.error("이미지 로드 실패:", imageUrl);
+                            e.target.onerror = null; // 무한 루프 방지
+                            e.target.parentNode.classList.add("bg-gray-100", "dark:bg-gray-700", "flex", "items-center", "justify-center");
+                            e.target.parentNode.innerHTML = '<span class="text-gray-400 dark:text-gray-500">이미지 없음</span>';
+                        }}
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+                        이미지 없음
+                    </div>
+                )}
+            </div>
 
             <div className="p-5">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{car.model}</h3>
@@ -27,7 +40,7 @@ const CarCard = ({ car, isFavorite, onToggleFavorite }) => {
 
                 <div className="flex justify-between items-center mb-1">
                     <span className="text-sm text-gray-500 dark:text-gray-400">주행거리:</span>
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{car.mileage !== "정보 없음" ? `${parseInt(car.mileage).toLocaleString()} km` : "정보 없음"}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{car.mileage !== null && car.mileage !== undefined && car.mileage !== "정보 없음" ? `${parseInt(car.mileage).toLocaleString()} km` : "정보 없음"}</span>
                 </div>
 
                 <div className="flex justify-between items-center mb-3">
@@ -39,7 +52,10 @@ const CarCard = ({ car, isFavorite, onToggleFavorite }) => {
                     <div className="flex justify-between items-center">
                         <span className="text-xl font-bold text-teal-600 dark:text-teal-400">{car.price?.toLocaleString() ?? "정보 없음"} 만원</span>
                         <button
-                            onClick={() => onToggleFavorite(car.id)}
+                            onClick={(e) => {
+                                e.preventDefault(); // 링크 클릭 방지
+                                onToggleFavorite(car.id);
+                            }}
                             className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400"
                         >
                             <svg

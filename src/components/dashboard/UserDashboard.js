@@ -19,9 +19,16 @@ const UserDashboard = ({ userId, username }) => {
                 setIsLoading(true);
                 try {
                     const data = await fetchFavorites(userId);
-                    setFavorites(data.slice(0, 3)); // 최대 3개만 표시
+                    // 데이터가 배열인지 확인하고 최대 3개만 표시
+                    if (Array.isArray(data)) {
+                        setFavorites(data.slice(0, 3));
+                    } else {
+                        console.error('즐겨찾기 데이터가 배열이 아닙니다:', data);
+                        setFavorites([]);
+                    }
                 } catch (error) {
                     console.error('즐겨찾기 로드 실패:', error);
+                    setFavorites([]);
                 } finally {
                     setIsLoading(false);
                 }
