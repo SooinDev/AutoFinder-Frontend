@@ -239,27 +239,49 @@ export const deleteCar = async (id) => {
 };
 
 // 이미지 업로드 처리 (Mock 버전)
+// 이미지 파일 업로드 함수
 export const uploadImages = async (files) => {
     if (!files || files.length === 0) return { mainImageUrl: null, galleryUrls: [] };
 
     try {
-        console.log(`이미지 업로드: ${files.length}개 파일`);
+        const formData = new FormData();
 
-        // 테스트 환경 - 모의 응답 생성
-        const mockUrls = files.map((file, index) => {
-            const url = URL.createObjectURL(file);
-            console.log(`파일 ${index + 1} 미리보기 URL: ${url}`);
-            return url;
+        // 파일 추가 방식 수정 - 서버에서 예상하는 형식으로 맞춤
+        files.forEach((file, index) => {
+            formData.append('files', file); // 'images' 대신 'files'로 변경 (서버 API에 맞게 수정)
         });
 
-        console.log("생성된 이미지 URL:", mockUrls);
+        console.log('Uploading files:', files); // 디버깅용
 
-        return {
-            mainImageUrl: mockUrls[0],  // 첫 번째 이미지를 메인으로
-            galleryUrls: mockUrls       // 모든 이미지 URL
-        };
+        const response = await axios.post(`${API_BASE_URL}/upload/images`, formData, {
+            ...getAuthHeaders(),
+            headers: {
+                ...getAuthHeaders().headers,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        console.log('Upload response:', response.data); // 디버깅용
+
+        // 반환된 형식이 다를 경우 서버 응답에 맞게 수정
+        if (response.data && response.data.urls) {
+            return {
+                mainImageUrl: response.data.urls[0],
+                galleryUrls: response.data.urls
+            };
+        } else if (response.data && response.data.imageUrls) {
+            // 다른 응답 형식 처리
+            return {
+                mainImageUrl: response.data.imageUrls[0],
+                galleryUrls: response.data.imageUrls
+            };
+        } else {
+            // 응답에 이미지 URL이 없는 경우
+            console.error("Server response does not contain image URLs:", response.data);
+            return { mainImageUrl: null, galleryUrls: [] };
+        }
     } catch (error) {
-        console.error("이미지 업로드 오류:", error);
+        console.error("이미지 업로드 오류:", error.response ? error.response.data : error.message);
         throw error;
     }
 };

@@ -1,5 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { addCar, updateCar, uploadImages } from '../../api/services';
+import axios from 'axios';
+
+const API_BASE_URL = "http://localhost:8080/api";
+
+// 인증 헤더 설정 함수
+const getAuthHeaders = () => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    return {
+        headers: {
+            "Authorization": token ? `Bearer ${token}` : undefined
+        }
+    };
+};
 
 const AdminCarForm = ({ car, onSuccess }) => {
     const isEditMode = !!car;
@@ -91,8 +104,7 @@ const AdminCarForm = ({ car, onSuccess }) => {
     // 이미지 업로드 핸들러
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
-        if (files.length === 0) return;
-
+        console.log('Selected files:', files); // 디버깅용
         setImageFiles(prevFiles => [...prevFiles, ...files]);
 
         // 미리보기 생성
@@ -155,59 +167,98 @@ const AdminCarForm = ({ car, onSuccess }) => {
         }
     };
 
-    // 폼 제출 핸들러
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         setError(null);
 
         try {
-            // 이미지 파일 처리
-            if (imageFiles.length > 0) {
-                const imageResults = await uploadImages(imageFiles);
+            // 새 FormData 객체 생성
+            const formDataObj = new FormData();
 
-                // 이미지 URL 설정
-                const updatedPreviews = [...imagePreviews];
-
-                // 새 이미지 URL로 교체 (기존 URL은 유지)
-                imageResults.galleryUrls.forEach((url, index) => {
-                    const fileIndex = imagePreviews.length - imageFiles.length + index;
-                    if (fileIndex >= 0 && fileIndex < updatedPreviews.length) {
-                        updatedPreviews[fileIndex] = url;
-                    }
-                });
-
-                // 폼 데이터에 이미지 URL 업데이트
-                setFormData(prev => ({
-                    ...prev,
-                    imageUrls: updatedPreviews,
-                    mainImageIndex: mainImageIndex
-                }));
-            }
-
-            // 데이터 변환 (문자열 → 숫자)
-            const preparedData = {
-                ...formData,
+            // 차량 정보를 JSON 문자열로 변환하여 추가
+            const carData = {
+                model: formData.model,
+                year: formData.year,
                 mileage: formData.mileage ? parseInt(formData.mileage, 10) : null,
                 price: formData.price ? parseInt(formData.price, 10) : null,
-                imageGallery: imagePreviews,
+                fuel: formData.fuel,
+                region: formData.region,
+                carType: formData.carType || '국산차',
+                description: formData.description,
+                carNumber: formData.carNumber,
+                registrationDate: formData.registrationDate,
+                carClass: formData.carClass,
+                color: formData.color,
+                transmission: formData.transmission,
+                imageUrls: imagePreviews,
                 mainImageIndex: mainImageIndex
             };
 
-            // 편집/추가 모드에 따라 적절한 API 호출
-            if (isEditMode) {
-                await updateCar(car.id, preparedData);
-            } else {
-                await addCar(preparedData);
+            console.log('Car data being sent:', carData); // 디버깅용
+            formDataObj.append('carData', JSON.stringify(carData));
+
+            // 이미지 파일 추가 (새로 업로드된 파일만)
+            if (imageFiles.length > 0) {
+                console.log('Uploading image files:', imageFiles.length);
+                imageFiles.forEach(file => {
+                    formDataObj.append('files', file);
+                });
             }
 
-            // 성공 콜백 호출
+            let response;
+
+            // API 호출 방식에 따라 다르게 처리
+            if (imageFiles.length > 0) {
+                // 이미지 파일이 있는 경우 admin API 사용
+                if (isEditMode) {
+                    console.log(`Updating car with ID ${car.id} with new images`);
+                    response = await axios.put(
+                        `${API_BASE_URL}/admin/cars/${car.id}`,
+                        formDataObj,
+                        {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                                'Authorization': localStorage.getItem('token') ?
+                                    `Bearer ${localStorage.getItem('token')}` : undefined
+                            }
+                        }
+                    );
+                } else {
+                    console.log('Adding new car with images');
+                    response = await axios.post(
+                        `${API_BASE_URL}/admin/cars`,
+                        formDataObj,
+                        {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                                'Authorization': localStorage.getItem('token') ?
+                                    `Bearer ${localStorage.getItem('token')}` : undefined
+                            }
+                        }
+                    );
+                }
+            } else {
+                // 이미지 파일이 없는 경우 기존 API 사용
+                console.log('Using standard API (no new images)');
+                if (isEditMode) {
+                    response = await updateCar(car.id, carData);
+                } else {
+                    response = await addCar(carData);
+                }
+            }
+
+            console.log('API response:', response); // 디버깅용
+
+            // 성공 처리
             if (onSuccess) {
                 onSuccess();
             }
         } catch (err) {
             console.error('차량 저장 오류:', err);
-            setError(isEditMode ? '차량 정보 업데이트 중 오류가 발생했습니다.' : '새 차량 추가 중 오류가 발생했습니다.');
+            setError(isEditMode
+                ? '차량 정보 업데이트 중 오류가 발생했습니다.'
+                : '새 차량 추가 중 오류가 발생했습니다.');
         } finally {
             setIsSubmitting(false);
         }
