@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+// test
 const API_BASE_URL = "http://localhost:8080/api";
 
 // 인증 헤더 설정
